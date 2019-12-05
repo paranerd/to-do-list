@@ -1,0 +1,41 @@
+body {
+	padding-top: 80px;
+}
+
+input {
+	border: 1px solid lightgrey !important;
+	border-radius: 5px 0px 0px 5px;
+}
+
+input:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+.items {
+	list-style-type: none;
+}
+
+.items li:hover {
+	cursor: pointer;
+}
+
+.items li i {
+	color: #777;
+}
+
+.items li:hover i {
+	color: #111;
+}
+
+.items li span {
+	margin-left: 10px;
+}
+
+.done * {
+	color: #aaa !important;
+}
+
+.done span {
+	text-decoration: line-through;
+}

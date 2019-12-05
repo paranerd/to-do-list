@@ -1,0 +1,71 @@
+<html>
+<head>
+	<title>Shopping List</title>
+	<link rel="manifest" href="manifest.json">
+	<meta name="theme-color" content="#008376">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css">
+
+	<!-- Custom -->
+	<link rel="stylesheet" href="css/design.css">
+</head>
+<body>
+	<nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
+		<a class="navbar-brand" href="/"><strong>Shopping List</strong></a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="navbar-collapse collapse" id="navigation">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="/">Home</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+
+	<div class="container">
+		<form id="search" action="#">
+			<div class="input-group" style="box-shadow: 0px 1px 1px 1px rgba(0,0,0,0.2); border-radius: .25rem;">
+				<input type="text" name="item" class="form-control" placeholder="Add item" autocomplete="off" autofocus></input>
+				<div class="input-group-append">
+					<button class="btn btn-light"><i class="fas fa-plus"></i></button>
+					<!-- <span class="input-group-text" style="background-color: #eee;"><i class="fas fa-plus"></i></span> -->
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<div class="container">
+		<ul class="items"></ul>
+	</div>
+
+	<div style="position: absolute; left: 20px; bottom: 20px;">
+		<button id="install" class="btn btn-info">Install</button>
+	</div>
+
+	<!--<h1>Chat</h1>
+	<p>Something in here from Development</p>
+	<button id="install">Install</button>
+	<button id="notify">Notify</button>-->
+
+	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+	<!-- Popper -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+	<!-- Bootstrap -->
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+	<!-- Custom -->
+	<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
