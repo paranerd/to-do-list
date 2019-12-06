@@ -47,7 +47,7 @@ self.addEventListener("activate", async (event) => {
 	);
 
 	try {
-		const applicationServerKey = urlB64ToUint8Array('BIJE-uGVbxNI7CAZPy8EPr2Ca0Cq_r7_h6FWdyTVTMeN_uX24Yc5AJsYoQaulGVrjpQvokMpjaIYj0U26VK88yY');
+		const applicationServerKey = urlB64ToUint8Array('BClMVUI9JnYAFPOSKYTJZfYolVlDBVrxEBHJCRoTARMWtcQ94fP7TppftQSEl6epTxZMhRuxZ2_nY2TUmNYOMoo');
 		const options = {applicationServerKey, userVisibleOnly: true};
 		const subscription = await self.registration.pushManager.subscribe(options);
 		const response = await saveSubscription(subscription);
@@ -73,12 +73,19 @@ const saveSubscription = async subscription => {
 
 self.addEventListener('push', function(event) {
 	if (event.data) {
+		clients.matchAll().then(function(clients) {
+			clients.forEach(function(client) {
+				client.postMessage('Push message came in: ' + event.data.text());
+			});
+		});
+
 		console.log("[ServiceWorker] Push event:", event.data.text());
+		self.registration.showNotification(event.data.text());
 	}
 	else {
 		console.log("[ServiceWorker] Push event without data");
 	}
-})
+});
 
 self.addEventListener('fetch', function(event) {
 	if (event.request.method == 'GET' && event.request.url.indexOf('/api/') > -1) {

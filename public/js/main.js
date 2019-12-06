@@ -28,7 +28,6 @@ function loadItems() {
 	let networkUpdate = fetch('/api/item').then(function(response) {
 		return response.json();
 	}).then(function(items) {
-		console.log("Updating from network");
 		networkDataReceived = true;
 		displayItems(items);
 	});
@@ -40,11 +39,7 @@ function loadItems() {
 	}).then(function(items) {
 		// Only update if there was no network update (yet)
 		if (!networkDataReceived) {
-			console.log("Updating from cache");
 			displayItems(items);
-		}
-		else {
-			console.log("Network was faster")
 		}
 	}).catch(function() {
 		return networkUpdate;
@@ -65,7 +60,6 @@ function displayItems(items) {
 $("#search").on('submit', function(e) {
 	e.preventDefault();
 	let name = capitalize($(this).find('input').val());
-	console.log(name);
 	this.reset();
 
 	addItem(name);
@@ -103,12 +97,11 @@ if ('serviceWorker' in navigator) {
 	window.addEventListener('load', function() {
 		navigator.serviceWorker.register('service-worker.js').then(function(registration) {
 			// Registration was successful
-			console.log('Registered!');
+			console.log("[ServiceWorker] Registered")
 			swRegistration = registration;
 			notifyMe();
-		}, function(err) {
-			// registration failed :(
-			console.log('ServiceWorker registration failed: ', err);
+
+			navigator.serviceWorker.addEventListener("message", handleSWMessage);
 		}).catch(function(err) {
 			console.log(err);
 		});
@@ -116,6 +109,10 @@ if ('serviceWorker' in navigator) {
 }
 else {
 	console.log('service worker is not supported');
+}
+
+function handleSWMessage(e) {
+	console.log(`Navigator SW received a msg: ${e.data}`);
 }
 
 window.addEventListener('beforeinstallprompt', e => {
@@ -144,7 +141,6 @@ const getNotificationPermission = async () => {
 		throw new Error("Notifications not supported.");
 	}
 	else if (Notification.permission === "granted") {
-		console.log("granted");
 		return;
 	}
 	else if (Notification.permission !== "denied") {
