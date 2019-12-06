@@ -1,8 +1,13 @@
 $(document).ready(function() {
 	addClickHandler();
-	//loadItems();
-	update();
+	loadItems();
 });
+
+function showInstallButton() {
+	if (!window.matchMedia('(display-mode: standalone)').matches) {
+		$("#install").removeClass("hidden");
+	}
+}
 
 function addClickHandler() {
 	$(".items li").off('click').on('click', function() {
@@ -17,46 +22,41 @@ function capitalize(str) {
 }
 
 function loadItems() {
-	$.ajax({
-		url: '/api/item',
-		type: 'GET'
-	}).done(function(items) {
-		items.forEach(function(item) {
-			addItem(item);
-		});
-	}).fail(function(xhr, status, error) {
-		console.log(error);
+	let networkDataReceived = false;
+
+	// Fetch network data
+	let networkUpdate = fetch('/api/item').then(function(response) {
+		return response.json();
+	}).then(function(items) {
+		console.log("Updating from network");
+		networkDataReceived = true;
+		displayItems(items);
+	});
+
+	// Fetch cached data
+	caches.match('/api/item').then(function(response) {
+		if (!response) throw Error("No data");
+		return response.json();
+	}).then(function(items) {
+		// Only update if there was no network update (yet)
+		if (!networkDataReceived) {
+			console.log("Updating from cache");
+			displayItems(items);
+		}
+		else {
+			console.log("Network was faster")
+		}
+	}).catch(function() {
+		return networkUpdate;
+	}).catch(function() {
+		console.log("There was an error");
 	});
 }
 
-async function update() {
-	// Start the network request as soon as possible.
-	const networkPromise = fetch('/api/item');
+function displayItems(items) {
+	// Remove existing items
+	$(".items").empty();
 
-	const cachedResponse = await caches.match('/api/item');
-	if (cachedResponse) {
-		console.log("cachedResponse -> check!")
-		await updateItems(cachedResponse);
-	}
-	else {
-		console.log("No cachedResponse");
-	}
-
-	try {
-		const networkResponse = await networkPromise;
-		const cache = await caches.open('static-cache-v1');
-		cache.put('/api/item', networkResponse.clone());
-		await updateItems(networkResponse);
-	} catch (err) {
-		console.log("error fetching network resonse");
-	// Maybe report a lack of connectivity to the user.
-	}
-
-	const networkResponse = await networkPromise;
-}
-
-async function updateItems(response) {
-	const items = await response.json();
 	items.forEach(function(item) {
 		addItem(item);
 	});

@@ -51,9 +51,8 @@ self.addEventListener("activate", async (event) => {
 		const options = {applicationServerKey, userVisibleOnly: true};
 		const subscription = await self.registration.pushManager.subscribe(options);
 		const response = await saveSubscription(subscription);
-		console.log(response);
 	} catch (err) {
-		console.log('Error', err);
+		console.log('[ServiceWorker] Error', err);
 	}
 
 	self.clients.claim();
@@ -74,64 +73,35 @@ const saveSubscription = async subscription => {
 
 self.addEventListener('push', function(event) {
 	if (event.data) {
-		console.log("Push event:", event.data.text());
+		console.log("[ServiceWorker] Push event:", event.data.text());
 	}
 	else {
-		console.log("Push event without data");
+		console.log("[ServiceWorker] Push event without data");
 	}
 })
 
 self.addEventListener('fetch', function(event) {
-	//console.log('Fetch!', event.request);
-
-	if (event.request.url.indexOf('/api/') > -1) {
-	//if (event.request.url.indexOf('/api/')) {
-		event.respondWith(async function() {
-			const cache = await caches.open(DATA_CACHE_NAME);
-			const cachedResponse = await cache.match(event.request);
-			const networkResponsePromise = fetch(event.request);
-
-			event.waitUntil(async function() {
-				const networkResponse = await networkResponsePromise;
-				await cache.put(event.request, networkResponse.clone());
-			});
-
-			return cachedResponse || networkResponsePromise;
-		}());
-
+	if (event.request.method == 'GET' && event.request.url.indexOf('/api/') > -1) {
 		// Requesting dynamic data -> use "Cache then network" strategy
-		/*event.respondWith(
+		event.respondWith(
 			caches.open(DATA_CACHE_NAME).then(function(cache) {
 				return fetch(event.request).then(function(response) {
-					console.log(event.request.url, "-> api");
-					cache.put(event.request.url, response.clone());
-					return response
+					cache.put(event.request, response.clone());
+					return response;
 				})
 			})
-		);*/
+		);
 	}
 	else {
-		//console.log("static call", event.request.url);
 		// Requesting app shell files -> use "Cache, falling back to the network" strategy
-		event.respondWith(
-			caches.match(event.request).then(function(response) {
-				if (response) {
-					console.log(event.request.url, "-> static from cache");
-					return response;
-				}
-				else {
-					console.log(event.request.url, "-> static from network");
-					return fetch(event.request);
-				}
-
-				//return response || fetch(event.request);
-			})
-		);
+		event.respondWith(async function() {
+			const response = await caches.match(event.request);
+			return response || fetch(event.request);
+		}());
 	}
 });
 
 self.addEventListener('notificationclick', function(event) {
-	console.log("Notification click received");
 	event.notification.close();
 	if (event.action === 'yes') {
 		// Archive action was clicked
@@ -140,7 +110,6 @@ self.addEventListener('notificationclick', function(event) {
 	else {
 		// Main body of notification was clicked
 		//clients.openWindow('/inbox');
-		console.log("something else");
 	}
 }, false);
 
