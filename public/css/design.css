@@ -12,6 +12,11 @@ input:focus {
 	box-shadow: none !important;
 }
 
+.navbar-custom {
+	color: white;
+	background: #008376;
+}
+
 .items {
 	list-style-type: none;
 }
@@ -38,4 +43,14 @@ input:focus {
 
 .done span {
 	text-decoration: line-through;
+}
+
+.hidden {
+	display: none;
+}
+
+#install {
+	position: absolute;
+	left: 20px;
+	bottom: 20px;
 }
