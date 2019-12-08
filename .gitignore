@@ -1,4 +1,5 @@
 config/
+!config/.gitignore
 node_modules/
 subscription.txt
-items.txt
+items.json

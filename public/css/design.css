@@ -13,8 +13,12 @@ input:focus {
 }
 
 .navbar-custom {
-	color: white;
 	background: #008376;
+}
+
+.navbar-custom .navbar-brand,
+.navbar-custom .nav-link {
+	color: white !important;
 }
 
 .items {
@@ -37,11 +41,15 @@ input:focus {
 	margin-left: 10px;
 }
 
-.done * {
+.items li span.remove {
+	text-decoration: none !important;
+}
+
+.item-done * {
 	color: #aaa !important;
 }
 
-.done span {
+.item-done span {
 	text-decoration: line-through;
 }
 

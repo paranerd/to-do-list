@@ -2,11 +2,12 @@ const express = require('express');
 const fs = require('fs');
 const router = express.Router();
 const path = require('path');
+const notification = require('../util/notification.js');
 
-const pathToItems = path.resolve('items.txt');
+const pathToItems = path.resolve('items.json');
 
 function loadItems() {
-	return fs.existsSync(pathToItems) ? JSON.parse(fs.readFileSync(pathToItems)) : [];
+	return fs.existsSync(pathToItems) ? JSON.parse(fs.readFileSync(pathToItems)) : {};
 }
 
 function writeItems(items) {
@@ -18,11 +19,39 @@ router.get('/', (req, res) => {
 	res.json(items);
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
 	let items = loadItems();
-	console.log(items);
-	items.push(req.body.name);
+	let name = req.body.name;
+
+	items[name] = false;
 	writeItems(items);
+
+	await notification.sendNotifications("To-Do List updated", req.headers['x-endpoint']);
+
+	res.json(items);
+});
+
+router.patch('/', async (req, res) => {
+	let items = loadItems();
+	let name = req.body.name;
+	let checked = (req.body.checked === 'true');
+
+	items[name] = checked;
+	writeItems(items);
+
+	await notification.sendNotifications("To-Do List updated", req.headers['x-endpoint']);
+
+	res.json(items);
+});
+
+router.delete('/', async (req, res) => {
+	let items = loadItems();
+	let name = req.body.name;
+
+	delete items[name];
+	writeItems(items);
+
+	await notification.sendNotifications("To-Do List updated", req.headers['x-endpoint']);
 
 	res.json(items);
 });

@@ -1,19 +1,79 @@
+let deferredPrompt = null;
+let swRegistration = null;
+
 $(document).ready(function() {
 	addClickHandler();
 	loadItems();
+	showInstallButton();
 });
 
 function showInstallButton() {
-	if (!window.matchMedia('(display-mode: standalone)').matches) {
+	if (!window.matchMedia('(display-mode: standalone)').matches ||
+		window.navigator.standalone !== true)
+	{
 		$("#install").removeClass("hidden");
 	}
 }
 
 function addClickHandler() {
-	$(".items li").off('click').on('click', function() {
+	$(".items li").off('click').on('click', function(e) {
+		if ($(e.target).is('.item-remove')) {
+			return;
+		}
+
 		$(this).find('i').toggleClass("fa-square");
 		$(this).find('i').toggleClass("fa-check-square");
-		$(this).toggleClass("done");
+		$(this).toggleClass("item-done");
+
+		let name = $(this).find('span.item-name').text();
+		let checked = $(this).hasClass("item-done");
+
+		if (navigator.onLine) {
+			setChecked(name, checked);
+		}
+		else {
+			localStorage.setItem(name, JSON.stringify({action: 'checked', checked: checked}));
+		}
+	});
+
+	$(".item-remove").off('click').on('click', function() {
+		let name = $(this).parent().find('.item-name').text();
+
+		$(this).parent().remove();
+
+		if (navigator.onLine) {
+			deleteItem(name);
+		}
+		else {
+			// Store in localStorage
+			localStorage.setItem(name, JSON.stringify({action: "delete"}));
+		}
+	});
+}
+
+function setChecked(name, checked) {
+	$.ajax({
+		url: '/api/item',
+		type: 'PATCH',
+		data: {name: name, checked: checked},
+		dataType: 'json'
+	}).done(function(data) {
+		console.log(data);
+	}).fail(function(xhr, status, err) {
+		console.log(err);
+	});
+}
+
+function deleteItem(name) {
+	$.ajax({
+		url: '/api/item',
+		type: 'DELETE',
+		data: {name: name},
+		dataType: 'json'
+	}).done(function(data) {
+		console.log(data);
+	}).fail(function(xhr, status, err) {
+		console.log(err);
 	});
 }
 
@@ -52,18 +112,12 @@ function displayItems(items) {
 	// Remove existing items
 	$(".items").empty();
 
-	items.forEach(function(item) {
-		addItem(item);
-	});
+	for (let name in items) {
+		showItem(name, items[name]);
+	}
 }
 
-$("#search").on('submit', function(e) {
-	e.preventDefault();
-	let name = capitalize($(this).find('input').val());
-	this.reset();
-
-	addItem(name);
-
+function addItem(name) {
 	$.ajax({
 		url: '/api/item',
 		type: 'POST',
@@ -74,24 +128,65 @@ $("#search").on('submit', function(e) {
 	}).fail(function(xhr, status, error) {
 		console.log(error);
 	});
+}
+
+$("#search").on('submit', function(e) {
+	e.preventDefault();
+
+	let name = capitalize($(this).find('input').val());
+
+	this.reset();
+
+	showItem(name, false);
+
+	if (navigator.onLine) {
+		addItem(name);
+	}
+	else {
+		localStorage.setItem(name, JSON.stringify({action: 'add'}));
+	}
 });
 
-function addItem(name) {
-	let li = document.createElement('li');
-	let i = document.createElement('i');
-	i.className = "far fa-square"
-	let span = document.createElement('span');
-	span.innerText = name;
+function showItem(name, checked) {
+	let item = document.createElement('li');
+	let icon = document.createElement('i');
 
-	li.appendChild(i);
-	li.appendChild(span);
-	$('.items').append(li);
+	if (checked) {
+		item.className = "item-done";
+		icon.className = "far fa-check-square";
+	}
+	else {
+		icon.className = "far fa-square";
+	}
+
+	let nameDOM = document.createElement('span');
+	nameDOM.className = "item-name";
+	nameDOM.innerText = name;
+
+	let remove = document.createElement('span');
+	remove.className = "item-remove";
+	remove.innerHTML = "&times;";
+
+	item.appendChild(icon);
+	item.appendChild(nameDOM);
+	item.appendChild(remove);
+	$('.items').append(item);
 
 	addClickHandler();
 }
 
-let deferredPrompt = null;
-let swRegistration = null;
+function removeItem(name) {
+	$.ajax({
+		url: '/api/item',
+		type: 'DELETE',
+		data: {name: name},
+		dataType: 'json'
+	}).done(function(data) {
+		console.log(data);
+	}).fail(function(xhr, status, err) {
+		console.log(err);
+	});
+}
 
 if ('serviceWorker' in navigator) {
 	window.addEventListener('load', function() {
@@ -99,7 +194,7 @@ if ('serviceWorker' in navigator) {
 			// Registration was successful
 			console.log("[ServiceWorker] Registered")
 			swRegistration = registration;
-			notifyMe();
+			//notifyMe();
 
 			navigator.serviceWorker.addEventListener("message", handleSWMessage);
 		}).catch(function(err) {
@@ -110,6 +205,26 @@ if ('serviceWorker' in navigator) {
 else {
 	console.log('service worker is not supported');
 }
+
+window.addEventListener('online', function() {
+	if (navigator.onLine) {
+		Object.keys(localStorage).forEach(name => {
+			let entry = JSON.parse(localStorage[name]);
+
+			if (entry.action == 'add') {
+				addItem(name);
+			}
+			else if (entry.action == 'delete') {
+				deleteItem(name);
+			}
+			else if (entry.action == 'checked') {
+				setChecked(name, entry.checked);
+			}
+
+			localStorage.removeItem(name);
+		});
+	}
+});
 
 function handleSWMessage(e) {
 	console.log(`Navigator SW received a msg: ${e.data}`);

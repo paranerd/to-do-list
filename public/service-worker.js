@@ -2,6 +2,8 @@
 
 const STATIC_CACHE_NAME = 'static-cache-v1';
 const DATA_CACHE_NAME = 'data-cache-v1';
+const SERVER_KEY = 'BM6_KGkGtIOZB5tJICG3SL9-ua0LP3KCnQHTf5yPnbn3imqbNyjoy-OpW1e-XIKOwdHOKUpA2Zebi6VSWTK6qAQ';
+let subscriptionEndpoint = "";
 
 const FILES_TO_CACHE = [
 	'/',
@@ -47,19 +49,22 @@ self.addEventListener("activate", async (event) => {
 	);
 
 	try {
-		const applicationServerKey = urlB64ToUint8Array('BClMVUI9JnYAFPOSKYTJZfYolVlDBVrxEBHJCRoTARMWtcQ94fP7TppftQSEl6epTxZMhRuxZ2_nY2TUmNYOMoo');
+		const applicationServerKey = urlB64ToUint8Array(SERVER_KEY);
 		const options = {applicationServerKey, userVisibleOnly: true};
 		const subscription = await self.registration.pushManager.subscribe(options);
 		const response = await saveSubscription(subscription);
+
+		subscriptionEndpoint = subscription.endpoint;
 	} catch (err) {
 		console.log('[ServiceWorker] Error', err);
+		self.registration.showNotification(err);
 	}
 
 	self.clients.claim();
 });
 
 const saveSubscription = async subscription => {
-	const SERVER_URL = 'http://localhost:8080/api/user/save-subscription';
+	const SERVER_URL = '/api/user/save-subscription';
 	const response = await fetch(SERVER_URL, {
 		method: 'post',
 		headers: {
@@ -87,7 +92,14 @@ self.addEventListener('push', function(event) {
 	}
 });
 
-self.addEventListener('fetch', function(event) {
+function customHeaderRequestFetch(event) {
+	const request = new Request(event.request);
+	request.headers.set('x-endpoint', subscriptionEndpoint);
+
+	return fetch(request);
+}
+
+self.addEventListener('fetch', async function(event) {
 	if (event.request.method == 'GET' && event.request.url.indexOf('/api/') > -1) {
 		// Requesting dynamic data -> use "Cache then network" strategy
 		event.respondWith(
@@ -98,6 +110,9 @@ self.addEventListener('fetch', function(event) {
 				})
 			})
 		);
+	}
+	else if (['POST', 'PATCH'].includes(event.request.method) && event.request.url.indexOf('/api/') > -1) {
+		event.respondWith(customHeaderRequestFetch(event))
 	}
 	else {
 		// Requesting app shell files -> use "Cache, falling back to the network" strategy
