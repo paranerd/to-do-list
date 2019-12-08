@@ -86,6 +86,7 @@ self.addEventListener('push', function(event) {
 
 		console.log("[ServiceWorker] Push event:", event.data.text());
 		self.registration.showNotification("To-Do List updated", {
+			icon: "images/icon.png",
 			body: event.data.text()
 		});
 	}
@@ -95,7 +96,7 @@ self.addEventListener('push', function(event) {
 });
 
 function customHeaderRequestFetch(event) {
-	//console.log(subscriptionEndpoint);
+	console.log(subscriptionEndpoint);
 
 	const request = new Request(event.request);
 	request.headers.set('x-endpoint', subscriptionEndpoint);
