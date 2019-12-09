@@ -2,20 +2,106 @@ let deferredPrompt = null;
 let swRegistration = null;
 
 $(document).ready(function() {
-	addClickHandler();
-	loadItems();
+	try {
+		registerServiceWorker();
+		requestNotificationPermission();
+	} catch (err) {
+		console.log(err);
+	}
+
+	addGeneralHandlers();
+	fetchItems();
 	showInstallButton();
 });
 
-function showInstallButton() {
-	if (!window.matchMedia('(display-mode: standalone)').matches ||
-		window.navigator.standalone !== true)
-	{
-		$("#install").removeClass("hidden");
+/**
+ * Register Service Worker
+ *
+ * @throws Error
+ */
+function registerServiceWorker() {
+	if ('serviceWorker' in navigator) {
+		window.addEventListener('load', function() {
+			navigator.serviceWorker.register('service-worker.js').then(function(registration) {
+				// Registration was successful
+				console.log("[ServiceWorker] Registered")
+				swRegistration = registration;
+
+				navigator.serviceWorker.addEventListener("message", handleSWMessage);
+			}).catch(function(err) {
+				console.log(err);
+			});
+		});
+	}
+	else {
+		throw new Error('Service Worker is not supported');
 	}
 }
 
-function addClickHandler() {
+/**
+ * Add general click handlers
+ */
+function addGeneralHandlers() {
+	// When the browser switches from offline to online, push any cached actions
+	window.addEventListener('online', function() {
+		if (navigator.onLine) {
+			Object.keys(localStorage).forEach(name => {
+				let entry = JSON.parse(localStorage[name]);
+				localStorage.removeItem(name);
+
+				if (entry.action == 'add') {
+					addItem(name);
+				}
+				else if (entry.action == 'delete') {
+					deleteItem(name);
+				}
+				else if (entry.action == 'checked') {
+					setChecked(name, entry.checked);
+				}
+			});
+		}
+	});
+
+	// Catch the "install app" prompt and store it to be triggered later
+	window.addEventListener('beforeinstallprompt', e => {
+		e.preventDefault();
+		deferredPrompt = e;
+		return false;
+	});
+
+	// Trigger app installation
+	$("#install").on('click', function() {
+		deferredPrompt.prompt();
+		deferredPrompt.userChoice.then(choice => {
+			console.log(choice);
+		});
+
+		deferredPrompt = null;
+	});
+
+	// Add item
+	$("#search").on('submit', function(e) {
+		e.preventDefault();
+
+		// Capitalize item name
+		let name = capitalize($(this).find('input').val());
+
+		// Reset input
+		this.reset();
+
+		// Display item
+		showItem(name, false);
+
+		// Save item to backend
+		addItem(name);
+	});
+}
+
+/**
+ * Add handlers for item-clicks
+ */
+function addItemClickHandlers() {
+	// Toggle checked
 	$(".items li").off('click').on('click', function(e) {
 		if ($(e.target).is('.item-remove')) {
 			return;
@@ -28,30 +114,55 @@ function addClickHandler() {
 		let name = $(this).find('span.item-name').text();
 		let checked = $(this).hasClass("item-done");
 
-		if (navigator.onLine) {
-			setChecked(name, checked);
-		}
-		else {
-			localStorage.setItem(name, JSON.stringify({action: 'checked', checked: checked}));
-		}
+		setChecked(name, checked);
 	});
 
+	// Remove
 	$(".item-remove").off('click').on('click', function() {
 		let name = $(this).parent().find('.item-name').text();
 
 		$(this).parent().remove();
 
-		if (navigator.onLine) {
-			deleteItem(name);
-		}
-		else {
-			// Store in localStorage
-			localStorage.setItem(name, JSON.stringify({action: "delete"}));
-		}
+		deleteItem(name);
+	});
+}
+
+function showInstallButton() {
+	if (!window.matchMedia('(display-mode: standalone)').matches ||
+		window.navigator.standalone !== true)
+	{
+		$("#install").removeClass("hidden");
+	}
+}
+
+function capitalize(str) {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function addItem(name) {
+	if (!navigator.onLine) {
+		localStorage.setItem(name, JSON.stringify({action: 'add'}));
+		return;
+	}
+
+	$.ajax({
+		url: '/api/item',
+		type: 'POST',
+		data: {name: name},
+		dataType: 'json'
+	}).done(function(data) {
+		console.log("success", data);
+	}).fail(function(xhr, status, error) {
+		console.log(error);
 	});
 }
 
 function setChecked(name, checked) {
+	if (!navigator.onLine) {
+		localStorage.setItem(name, JSON.stringify({action: 'checked', checked: checked}));
+		return;
+	}
+
 	$.ajax({
 		url: '/api/item',
 		type: 'PATCH',
@@ -65,6 +176,12 @@ function setChecked(name, checked) {
 }
 
 function deleteItem(name) {
+	if (!navigator.onLine) {
+		// Store in localStorage
+		localStorage.setItem(name, JSON.stringify({action: "delete"}));
+		return;
+	}
+
 	$.ajax({
 		url: '/api/item',
 		type: 'DELETE',
@@ -77,11 +194,7 @@ function deleteItem(name) {
 	});
 }
 
-function capitalize(str) {
-	return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function loadItems() {
+function fetchItems() {
 	let networkDataReceived = false;
 
 	// Fetch network data
@@ -117,36 +230,6 @@ function displayItems(items) {
 	}
 }
 
-function addItem(name) {
-	$.ajax({
-		url: '/api/item',
-		type: 'POST',
-		data: {name: name},
-		dataType: 'json'
-	}).done(function(data) {
-		console.log("success", data);
-	}).fail(function(xhr, status, error) {
-		console.log(error);
-	});
-}
-
-$("#search").on('submit', function(e) {
-	e.preventDefault();
-
-	let name = capitalize($(this).find('input').val());
-
-	this.reset();
-
-	showItem(name, false);
-
-	if (navigator.onLine) {
-		addItem(name);
-	}
-	else {
-		localStorage.setItem(name, JSON.stringify({action: 'add'}));
-	}
-});
-
 function showItem(name, checked) {
 	let item = document.createElement('li');
 	let icon = document.createElement('i');
@@ -172,86 +255,24 @@ function showItem(name, checked) {
 	item.appendChild(remove);
 	$('.items').append(item);
 
-	addClickHandler();
+	addItemClickHandlers();
 }
 
-function removeItem(name) {
-	$.ajax({
-		url: '/api/item',
-		type: 'DELETE',
-		data: {name: name},
-		dataType: 'json'
-	}).done(function(data) {
-		console.log(data);
-	}).fail(function(xhr, status, err) {
-		console.log(err);
-	});
-}
-
-if ('serviceWorker' in navigator) {
-	window.addEventListener('load', function() {
-		navigator.serviceWorker.register('service-worker.js').then(function(registration) {
-			// Registration was successful
-			console.log("[ServiceWorker] Registered")
-			swRegistration = registration;
-			//notifyMe();
-
-			navigator.serviceWorker.addEventListener("message", handleSWMessage);
-		}).catch(function(err) {
-			console.log(err);
-		});
-	});
-}
-else {
-	console.log('service worker is not supported');
-}
-
-window.addEventListener('online', function() {
-	if (navigator.onLine) {
-		Object.keys(localStorage).forEach(name => {
-			let entry = JSON.parse(localStorage[name]);
-
-			if (entry.action == 'add') {
-				addItem(name);
-			}
-			else if (entry.action == 'delete') {
-				deleteItem(name);
-			}
-			else if (entry.action == 'checked') {
-				setChecked(name, entry.checked);
-			}
-
-			localStorage.removeItem(name);
-		});
-	}
-});
-
+/**
+ * Handle messages from Service Worker
+ *
+ * @param event e
+ */
 function handleSWMessage(e) {
 	console.log(`Navigator SW received a msg: ${e.data}`);
 }
 
-window.addEventListener('beforeinstallprompt', e => {
-	e.preventDefault();
-	// Stash the event so it can be triggered later.
-	deferredPrompt = e;
-	return false;
-});
-
-let installButton = document.getElementById("install");
-	installButton.addEventListener('click', function() {
-		deferredPrompt.prompt();
-			deferredPrompt.userChoice.then(choice => {
-				console.log(choice);
-	});
-
-	deferredPrompt = null;
-});
-
-const getNotificationPermission = async () => {
-	if (!swRegistration) {
-		throw new Error("ServiceWorker not registered")
-	}
-
+/**
+ * Request permission to display notifications
+ *
+ * @throws Error
+ */
+async function requestNotificationPermission() {
 	if (!("Notification" in window)) {
 		throw new Error("Notifications not supported.");
 	}
@@ -263,28 +284,7 @@ const getNotificationPermission = async () => {
 			if (status !== "granted") {
 				throw new Error("Notification permission denied");
 			}
-		})
+		});
 	}
 }
 
-let notifyMe = async () => {
-	try {
-		await getNotificationPermission();
-		sendNotification();
-	} catch (e) {
-		console.log(e);
-	}
-}
-
-function sendNotification() {
-	swRegistration.showNotification("Hello, World!", {
-		body: "This is a dummy body",
-		icon: "images/icon.png",
-		actions: [
-			{
-				action: 'yes',
-				title: 'Yes'
-			}
-		]
-	});
-}
