@@ -3,7 +3,6 @@
 const STATIC_CACHE_NAME = 'static-cache-v1';
 const DATA_CACHE_NAME = 'data-cache-v1';
 const SERVER_KEY = 'BM6_KGkGtIOZB5tJICG3SL9-ua0LP3KCnQHTf5yPnbn3imqbNyjoy-OpW1e-XIKOwdHOKUpA2Zebi6VSWTK6qAQ';
-let subscriptionEndpoint = "";
 
 const FILES_TO_CACHE = [
 	'/',
@@ -53,56 +52,12 @@ self.addEventListener("activate", async (event) => {
 		const options = {applicationServerKey, userVisibleOnly: true};
 		const subscription = await self.registration.pushManager.subscribe(options);
 		const response = await saveSubscription(subscription);
-
-		subscriptionEndpoint = subscription.endpoint;
 	} catch (err) {
 		console.log('[ServiceWorker] Error', err);
-		self.registration.showNotification(err);
 	}
 
 	self.clients.claim();
 });
-
-const saveSubscription = async subscription => {
-	const SERVER_URL = '/api/user/save-subscription';
-	const response = await fetch(SERVER_URL, {
-		method: 'post',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(subscription),
-	});
-
-	return response.json();
-}
-
-self.addEventListener('push', function(event) {
-	if (event.data) {
-		clients.matchAll().then(function(clients) {
-			clients.forEach(function(client) {
-				client.postMessage('Push message came in: ' + event.data.text());
-			});
-		});
-
-		console.log("[ServiceWorker] Push event:", event.data.text());
-		self.registration.showNotification("To-Do List updated", {
-			icon: "images/icon.png",
-			body: event.data.text()
-		});
-	}
-	else {
-		console.log("[ServiceWorker] Push event without data");
-	}
-});
-
-function customHeaderRequestFetch(event) {
-	console.log(subscriptionEndpoint);
-
-	const request = new Request(event.request);
-	request.headers.set('x-endpoint', subscriptionEndpoint);
-
-	return fetch(request);
-}
 
 self.addEventListener('fetch', async function(event) {
 	if (event.request.method == 'GET' && event.request.url.indexOf('/api/') > -1) {
@@ -116,8 +71,9 @@ self.addEventListener('fetch', async function(event) {
 			})
 		);
 	}
-	else if (['POST', 'PATCH'].includes(event.request.method) && event.request.url.indexOf('/api/') > -1) {
-		event.respondWith(customHeaderRequestFetch(event))
+	else if (event.request.method != 'GET' && event.request.url.indexOf('/api/') > -1) {
+		// API call other than GET -> add some header; just for knowledgebase's sake
+		event.respondWith(addHeader(event));
 	}
 	else {
 		// Requesting app shell files -> use "Cache, falling back to the network" strategy
@@ -128,28 +84,73 @@ self.addEventListener('fetch', async function(event) {
 	}
 });
 
+self.addEventListener('push', function(event) {
+	if (event.data) {
+		clients.matchAll().then(function(clients) {
+			clients.forEach(function(client) {
+				client.postMessage('Push message came in: ' + event.data.text());
+			});
+		});
+
+		console.log("[ServiceWorker] Push event:", event.data.text());
+		self.registration.showNotification("To-Do List updated", {
+			icon: "images/icon.png",
+			body: event.data.text(),
+			actions: [
+				{
+					action: 'refresh',
+					title: 'Refresh'
+				}
+			]
+		});
+	}
+});
+
 self.addEventListener('notificationclick', function(event) {
+	console.log(event);
 	event.notification.close();
-	if (event.action === 'yes') {
-		// Archive action was clicked
+
+	if (event.action === 'refresh') {
+		// Refresh action was clicked
 		self.registration.showNotification("That Worked :-D!");
 	}
 	else {
 		// Main body of notification was clicked
-		//clients.openWindow('/inbox');
+		clients.openWindow('/');
 	}
 }, false);
 
+async function saveSubscription(subscription) {
+	const response = await fetch('/api/user/save-subscription', {
+		method: 'post',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(subscription),
+	});
+
+	return response.json();
+}
+
 // urlB64ToUint8Array is a magic function that will encode the base64 public key
 // to Array buffer which is needed by the subscription option
-const urlB64ToUint8Array = base64String => {
+function urlB64ToUint8Array(base64String) {
 	const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
 	const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/')
 	const rawData = atob(base64)
 	const outputArray = new Uint8Array(rawData.length)
+
 	for (let i = 0; i < rawData.length; ++i) {
 		outputArray[i] = rawData.charCodeAt(i)
 	}
 
 	return outputArray
 }
+
+function addHeader(event) {
+	const request = new Request(event.request);
+	request.headers.set('x-my-custom-header', "This is some important value!");
+
+	return fetch(request);
+}
+
