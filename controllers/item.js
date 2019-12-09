@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
 	items[name] = false;
 	writeItems(items);
 
-	await notification.sendNotifications(name + " added", req.headers['x-endpoint']);
+	await notification.sendNotifications(name + " added", req.cookies.endpoint);
 
 	res.json(items);
 });
@@ -39,7 +39,7 @@ router.patch('/', async (req, res) => {
 	items[name] = checked;
 	writeItems(items);
 
-	await notification.sendNotifications(name + " updated", req.headers['x-endpoint']);
+	await notification.sendNotifications(name + " updated", req.cookies.endpoint);
 
 	res.json(items);
 });
@@ -51,7 +51,7 @@ router.delete('/', async (req, res) => {
 	delete items[name];
 	writeItems(items);
 
-	await notification.sendNotifications(name + " removed", req.headers['x-endpoint']);
+	await notification.sendNotifications(name + " removed", req.cookies.endpoint);
 
 	res.json(items);
 });

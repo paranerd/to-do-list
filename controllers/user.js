@@ -8,6 +8,11 @@ router.post('/save-subscription', async (req, res) => {
 	console.log("Saving subscription");
 	await notification.addSubscription(req.body);
 
+	res.cookie('endpoint', req.body.endpoint, {
+		maxAge: 1000 * 60 * 60 * 24 * 365,
+		httpOnly: true
+	});
+
 	res.json({
 		message: 'success'
 	});
