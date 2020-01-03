@@ -265,6 +265,7 @@ function showItem(name, checked) {
  */
 function handleSWMessage(e) {
 	console.log(`Navigator SW received a msg: ${e.data}`);
+	location.reload();
 }
 
 /**
