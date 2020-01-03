@@ -98,8 +98,8 @@ self.addEventListener('push', function(event) {
 			body: event.data.text(),
 			actions: [
 				{
-					action: 'refresh',
-					title: 'Refresh'
+					action: 'clickme',
+					title: 'Click Me!'
 				}
 			]
 		});
@@ -110,8 +110,8 @@ self.addEventListener('notificationclick', function(event) {
 	console.log(event);
 	event.notification.close();
 
-	if (event.action === 'refresh') {
-		// Refresh action was clicked
+	if (event.action === 'clickme') {
+		// clickme action was clicked
 		self.registration.showNotification("That Worked :-D!");
 	}
 	else {
