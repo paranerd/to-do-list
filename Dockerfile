@@ -12,7 +12,7 @@ RUN npm install
 COPY . .
 
 # Map port
-EXPOSE 8080
+EXPOSE 8088
 
 # Start server
 CMD [ "node", "server.js" ]
