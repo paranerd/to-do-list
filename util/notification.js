@@ -1,15 +1,3 @@
-/*
-To generate your key-pair, install web-push globally and run:
-web-push generate-vapid-keys
-Then add config/vapid.json with the following structure:
-
-{
-  "mail": "",
-  "public": "",
-  "private": ""
-}
-*/
-
 const webpush = require('web-push');
 const fs = require('fs');
 const path = require('path');
