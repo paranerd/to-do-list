@@ -1,4 +1,5 @@
 node_modules/
+data/
 config/vapid.json
 config/config.json
 subscription.txt

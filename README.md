@@ -17,10 +17,12 @@ npm start
 ```
 
 ## Run with Docker
+[Install Docker Compose](https://docs.docker.com/compose/install/)
+
 ```
-docker build -t to-do-list .
+docker-compose build
 ```
 
 ```
-docker run -p 8088:8080 -d to-do-list
+docker-compose up -d
 ```
