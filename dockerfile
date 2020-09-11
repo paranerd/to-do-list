@@ -14,5 +14,8 @@ COPY . .
 # Map port
 EXPOSE 8088
 
+# Add environment variable
+ENV DOCKER=true
+
 # Start server
 CMD [ "node", "server.js" ]
