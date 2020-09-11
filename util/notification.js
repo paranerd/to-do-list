@@ -9,20 +9,25 @@ async function sendNotifications(msg='', endpoint='') {
 	const subscriptions = await getSubscriptions();
 	const vapid = getVapid();
 
+	if (!vapid) {
+		return;
+	}
+
 	webpush.setVapidDetails(
 		'mailto:' + vapid.mail,
 		vapid.public,
 		vapid.private
 	);
 
-	try {
-		for (let s in subscriptions) {
-			if (subscriptions[s].endpoint != endpoint) {
+	for (let s in subscriptions) {
+		if (subscriptions[s].endpoint != endpoint) {
+			try {
 				await webpush.sendNotification(subscriptions[s], msg);
+			} catch (e) {
+				console.log(e);
 			}
+			
 		}
-	} catch (err) {
-		throw new Error(err);
 	}
 }
 
@@ -30,12 +35,14 @@ function getVapid() {
 	return fs.existsSync(pathToVapid) ? JSON.parse(fs.readFileSync(pathToVapid)) : null;
 }
 
-async function addSubscription(subscription) {
+function addSubscription(subscription) {
 	let subscriptions = getSubscriptions();
 
-	subscriptions[subscription.endpoint] = subscription;
+	if (subscriptions) {
+		subscriptions[subscription.endpoint] = subscription;
 
-	fs.writeFileSync(pathToSubscriptions, JSON.stringify(subscriptions, null, 4));
+		fs.writeFileSync(pathToSubscriptions, JSON.stringify(subscriptions, null, 4));
+	}
 }
 
 function getSubscriptions() {

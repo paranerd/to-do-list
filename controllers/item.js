@@ -2,80 +2,120 @@ const express = require('express');
 const fs = require('fs');
 const router = express.Router();
 const path = require('path');
-const cryptoRandomString = require('crypto-random-string');
+const uuid = require('uuid');
 const notification = require('../util/notification.js');
 
-const pathToItems = path.resolve('items.json');
+const pathToItems = path.join(__dirname, '../', 'config', 'items.json');
 const idLength = 8;
+const items = loadItems();
 
 function loadItems() {
-	return fs.existsSync(pathToItems) ? JSON.parse(fs.readFileSync(pathToItems)) : {};
+	return fs.existsSync(pathToItems) ? JSON.parse(fs.readFileSync(pathToItems)) : [];
 }
 
 function writeItems(items) {
-	fs.writeFileSync(pathToItems, JSON.stringify(items));
+	fs.writeFileSync(pathToItems, JSON.stringify(items, null, 4));
 }
 
 router.get('/', (req, res) => {
-	const items = loadItems();
 	res.json(items);
 });
 
 router.post('/', async (req, res) => {
-	const items = loadItems();
 	const name = req.body.name;
+	const created = req.body.created || Date.now();
+
+	if (!name) {
+		res.status(400).json({});
+		return;
+	}
 
 	const item = {
+		id: uuid.v4(),
 		name: req.body.name,
-		created: Date.now(),
+		created: created,
+		modified: created,
 		done: false
 	}
 
-	const id = cryptoRandomString({length: idLength, type: 'url-safe'});
+	addItem(item);
 
-	items[id] = item;
-	writeItems(items);
+	await notification.sendNotifications(name + " added", req.cookies.endpoint);
 
-	try {
-		await notification.sendNotifications(name + " added", req.cookies.endpoint);
-	} catch (e) {
-		console.log(e);
-	}
-
-	res.json(items);
+	res.json(item);
 });
 
 router.patch('/', async (req, res) => {
-	const items = loadItems();
 	const id = req.body.id;
-	const done = (req.body.done === 'true');
+	const timestamp = req.body.ts || Date.now();
+	const done = !!req.body.done;
+	
+	let item = getItemById(id);
+	item.done = done;
+	item.modified = Date.now();
 
-	items[id].done = done;
-	writeItems(items);
+	updateItem(item);
 
-	try {
-		await notification.sendNotifications(name + " updated", req.cookies.endpoint);
-	} catch (e) {
-		console.log(e);
-	}
+	await notification.sendNotifications(item.name + " updated", req.cookies.endpoint);
 
-	res.json(items);
+	res.json(item);
 });
 
 router.delete('/', async (req, res) => {
-	const items = loadItems();
 	const id = req.body.id;
+	const timestamp = req.body.ts || Date.now();
+	const item = getItemById(id);
 
-	delete items[id];
-	writeItems(items);
-
-	try {
-		await notification.sendNotifications(name + " removed", req.cookies.endpoint);
-	} catch (e) {
-		console.log(e);
+	if (!item) {
+		res.status(404).json({});
+		return;
 	}
 
-	res.json(items);
+	if (item.modified > timestamp) {
+		res.status(200).json({});
+		return;
+	}
+
+	deleteItem(id);
+
+	await notification.sendNotifications(name + " removed", req.cookies.endpoint);
+
+	res.json({});
 });
+
+function getItemById(id) {
+	for (let item of items) {
+		if (item.id === id) {
+			return item;
+		}
+	}
+}
+
+function addItem(item) {
+	items.push(item);
+	writeItems(items);
+}
+
+function updateItem(item) {
+	for (let i = 0; i < items.length; i++) {
+		if (items[i].id === item.id) {
+			items[i] = item;
+			break;
+		}
+	}
+
+	writeItems(items);
+}
+
+function deleteItem(id) {
+	for (let i = items.length -1; i >= 0 ; i--) {
+		if (items[i].id === id) {
+			items.splice(i, 1);
+			break;
+		}
+	}
+
+	writeItems(items);
+}
 
 module.exports = router;

@@ -63,11 +63,10 @@ self.addEventListener('fetch', async function(event) {
 	if (event.request.method == 'GET' && event.request.url.indexOf('/api/') > -1) {
 		// Requesting dynamic data -> use "Cache then network" strategy
 		event.respondWith(
-			caches.open(DATA_CACHE_NAME).then(function(cache) {
-				return fetch(event.request).then(function(response) {
-					cache.put(event.request, response.clone());
-					return response;
-				})
+			caches.open(DATA_CACHE_NAME).then(async function(cache) {
+				const response = await fetch(event.request);
+				cache.put(event.request, response.clone());
+				return response;
 			})
 		);
 	}

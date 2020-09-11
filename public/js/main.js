@@ -1,7 +1,11 @@
 let deferredPrompt = null;
 let swRegistration = null;
+let items = [];
+const apiUrl = '/api/item';
+const api = new Api();
+const cache = new Cache();
 
-$(document).ready(function() {
+$(document).ready(async function() {
 	try {
 		registerServiceWorker();
 		requestNotificationPermission();
@@ -10,6 +14,7 @@ $(document).ready(function() {
 	}
 
 	addGeneralHandlers();
+	await cache.sync();
 	fetchItems();
 	showInstallButton();
 });
@@ -43,22 +48,10 @@ function registerServiceWorker() {
  */
 function addGeneralHandlers() {
 	// When the browser switches from offline to online, push any cached actions
-	window.addEventListener('online', function() {
+	window.addEventListener('online', async function() {
 		if (navigator.onLine) {
-			Object.keys(localStorage).forEach(name => {
-				let entry = JSON.parse(localStorage[name]);
-				localStorage.removeItem(name);
-
-				if (entry.action == 'add') {
-					addItem(name);
-				}
-				else if (entry.action == 'delete') {
-					deleteItem(name);
-				}
-				else if (entry.action == 'checked') {
-					setChecked(name, entry.checked);
-				}
-			});
+			await cache.sync();
+			fetchItems();
 		}
 	});
 
@@ -79,21 +72,18 @@ function addGeneralHandlers() {
 		deferredPrompt = null;
 	});
 
-	// Add item
-	$("#search").on('submit', function(e) {
+	// Create item
+	$("#create-item").on('submit', function(e) {
 		e.preventDefault();
 
 		// Capitalize item name
-		let name = capitalize($(this).find('input').val());
+		const name = capitalize($(this).find('input').val());
 
 		// Reset input
 		this.reset();
 
-		// Display item
-		showItem(name, false);
-
 		// Save item to backend
-		addItem(name);
+		createItem(name);
 	});
 }
 
@@ -111,22 +101,25 @@ function addItemClickHandlers() {
 		$(this).find('i').toggleClass("fa-check-square");
 		$(this).toggleClass("item-done");
 
-		let name = $(this).find('span.item-name').text();
-		let checked = $(this).hasClass("item-done");
+		const id = $(this).data('id');
+		const done = $(this).hasClass("item-done");
 
-		setChecked(name, checked);
+		updateItem(id, done);
 	});
 
 	// Remove
 	$(".item-remove").off('click').on('click', function() {
-		let name = $(this).parent().find('.item-name').text();
+		const id = $(this).parent().data('id');
 
 		$(this).parent().remove();
 
-		deleteItem(name);
+		deleteItem(id);
 	});
 }
 
+/**
+ * Show install button
+ */
 function showInstallButton() {
 	if (!window.matchMedia('(display-mode: standalone)').matches ||
 		window.navigator.standalone !== true)
@@ -135,107 +128,141 @@ function showInstallButton() {
 	}
 }
 
+/**
+ * Capitalize string
+ * @param {string} str
+ * @returns {string}
+ */
 function capitalize(str) {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function addItem(name) {
-	if (!navigator.onLine) {
-		localStorage.setItem(name, JSON.stringify({action: 'add'}));
-		return;
+/**
+ * Create item
+ * @param {string} name
+ */
+async function createItem(name) {
+	try {
+		const item = await api.create(name)
+		items.push(item);
+	} catch (e) {
+		const item = cache.create(name);
+		items.push(item);
+	} finally {
+		displayItems();
 	}
-
-	$.ajax({
-		url: '/api/item',
-		type: 'POST',
-		data: {name: name},
-		dataType: 'json'
-	}).done(function(data) {
-		console.log("success", data);
-	}).fail(function(xhr, status, error) {
-		console.log(error);
-	});
 }
 
-function setChecked(name, checked) {
-	if (!navigator.onLine) {
-		localStorage.setItem(name, JSON.stringify({action: 'checked', checked: checked}));
-		return;
-	}
+/**
+ * Update item status
+ * @param {string} id
+ * @param {boolean} done
+ */
+async function updateItem(id, done) {
+	let item = getItemById(id);
 
-	$.ajax({
-		url: '/api/item',
-		type: 'PATCH',
-		data: {name: name, checked: checked},
-		dataType: 'json'
-	}).done(function(data) {
-		console.log(data);
-	}).fail(function(xhr, status, err) {
-		console.log(err);
-	});
+	try {
+		// Try updating on the server
+		item = await api.update(id, done);
+	} catch (e) {
+		// Save the update for later instead
+		item = cache.update(item, done);
+	}
+	finally {
+		// Update items array
+		for (let i = 0; i < items.length; i++) {
+			if (items[i].id === id) {
+				items[i] = item;
+				break;
+			}
+		}
+
+		// Display updated items
+		displayItems();
+	}
 }
 
-function deleteItem(name) {
-	if (!navigator.onLine) {
-		// Store in localStorage
-		localStorage.setItem(name, JSON.stringify({action: "delete"}));
-		return;
-	}
+/**
+ * Delete item
+ * @param {string} id
+ */
+async function deleteItem(id) {
+	let item = getItemById(id);
 
-	$.ajax({
-		url: '/api/item',
-		type: 'DELETE',
-		data: {name: name},
-		dataType: 'json'
-	}).done(function(data) {
-		console.log(data);
-	}).fail(function(xhr, status, err) {
-		console.log(err);
-	});
+	try {
+		// Try deleting on the server
+		await api.delete(id);
+	} catch (e) {
+		// Save deletion for later instead
+		item = cache.delete(item);
+	} finally {
+		// Update items array
+		for (let i = 0; i < items.length; i++) {
+			if (items[i].id === id) {
+				items.splice(i, 1);
+				break;
+			}
+		}
+
+		// Display updated items
+		displayItems();
+	}
 }
 
+/**
+ * Fetch items from network or cache if unavailable
+ */
 function fetchItems() {
 	let networkDataReceived = false;
 
 	// Fetch network data
-	let networkUpdate = fetch('/api/item').then(function(response) {
+	let networkUpdate = fetch(apiUrl).then(function(response) {
 		return response.json();
-	}).then(function(items) {
+	}).then(function(data) {
 		networkDataReceived = true;
-		displayItems(items);
+		items = data;
+		displayItems();
 	});
 
 	// Fetch cached data
-	caches.match('/api/item').then(function(response) {
+	caches.match(apiUrl).then(function(response) {
 		if (!response) throw Error("No data");
 		return response.json();
-	}).then(function(items) {
+	}).then(function(data) {
 		// Only update if there was no network update (yet)
 		if (!networkDataReceived) {
-			displayItems(items);
+			items = data;
+			displayItems();
 		}
 	}).catch(function() {
 		return networkUpdate;
 	}).catch(function() {
-		console.log("There was an error");
+		console.log("Error fetching data");
 	});
 }
 
-function displayItems(items) {
+/**
+ * Build items list
+ */
+function displayItems() {
 	// Remove existing items
 	$(".items").empty();
 
-	for (let name in items) {
-		showItem(name, items[name]);
+	for (let item of items) {
+		showItem(item);
 	}
 }
 
-function showItem(name, checked) {
-	let item = document.createElement('li');
+/**
+ * Create item DOM
+ * @param {Item} item
+ */
+function showItem(item) {
+	let itemDOM = document.createElement('li');
 	let icon = document.createElement('i');
 
-	if (checked) {
-		item.className = "item-done";
+	if (item.done) {
+		itemDOM.className = "item-done";
 		icon.className = "far fa-check-square";
 	}
 	else {
@@ -244,16 +271,17 @@ function showItem(name, checked) {
 
 	let nameDOM = document.createElement('span');
 	nameDOM.className = "item-name";
-	nameDOM.innerText = name;
+	nameDOM.innerText = item.name;
 
 	let remove = document.createElement('span');
 	remove.className = "item-remove";
 	remove.innerHTML = "&times;";
 
-	item.appendChild(icon);
-	item.appendChild(nameDOM);
-	item.appendChild(remove);
-	$('.items').append(item);
+	itemDOM.appendChild(icon);
+	itemDOM.appendChild(nameDOM);
+	itemDOM.appendChild(remove);
+	itemDOM.setAttribute('data-id', item.id);
+	$('.items').append(itemDOM);
 
 	addItemClickHandlers();
 }
@@ -289,3 +317,17 @@ async function requestNotificationPermission() {
 	}
 }
 
+/**
+ * Get item by ID
+ * @param {string} id
+ * @returns {Item}
+ */
+function getItemById(id) {
+	for (let item of items) {
+		if (item.id === id) {
+			return item;
+		}
+	}
+
+	return null;
+}
