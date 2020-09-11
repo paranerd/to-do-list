@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
 
 	await item.save();
 
-	await notification.sendNotifications(name + " added", req.cookies.endpoint);
+	await notification.sendNotifications(item.name + " added", req.cookies.endpoint);
 
 	res.json(item);
 });
