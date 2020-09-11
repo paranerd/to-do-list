@@ -1,23 +1,11 @@
 const express = require('express');
-const fs = require('fs');
+const Item = require('../models/item');
+const notification = require('../util/notification');
+
 const router = express.Router();
-const path = require('path');
-const uuid = require('uuid');
-const notification = require('../util/notification.js');
 
-const pathToItems = path.join(__dirname, '../', 'config', 'items.json');
-const idLength = 8;
-const items = loadItems();
-
-function loadItems() {
-	return fs.existsSync(pathToItems) ? JSON.parse(fs.readFileSync(pathToItems)) : [];
-}
-
-function writeItems(items) {
-	fs.writeFileSync(pathToItems, JSON.stringify(items, null, 4));
-}
-
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+	const items = await Item.find({});
 	res.json(items);
 });
 
@@ -30,15 +18,13 @@ router.post('/', async (req, res) => {
 		return;
 	}
 
-	const item = {
-		id: uuid.v4(),
+	const item = new Item({
 		name: req.body.name,
 		created: created,
-		modified: created,
-		done: false
-	}
+		modified: created
+	});
 
-	addItem(item);
+	await item.save();
 
 	await notification.sendNotifications(name + " added", req.cookies.endpoint);
 
@@ -50,11 +36,11 @@ router.patch('/', async (req, res) => {
 	const timestamp = req.body.ts || Date.now();
 	const done = !!req.body.done;
 	
-	let item = getItemById(id);
+	let item = await Item.findOne({id: id});
 	item.done = done;
 	item.modified = Date.now();
 
-	updateItem(item);
+	await item.save();
 
 	await notification.sendNotifications(item.name + " updated", req.cookies.endpoint);
 
@@ -64,7 +50,7 @@ router.patch('/', async (req, res) => {
 router.delete('/', async (req, res) => {
 	const id = req.body.id;
 	const timestamp = req.body.ts || Date.now();
-	const item = getItemById(id);
+	const item = await Item.findOne({id: id});
 
 	if (!item) {
 		res.status(404).json({});
@@ -76,46 +62,11 @@ router.delete('/', async (req, res) => {
 		return;
 	}
 
-	deleteItem(id);
+	await item.remove();
 
 	await notification.sendNotifications(name + " removed", req.cookies.endpoint);
 
 	res.json({});
 });
-
-function getItemById(id) {
-	for (let item of items) {
-		if (item.id === id) {
-			return item;
-		}
-	}
-}
-
-function addItem(item) {
-	items.push(item);
-	writeItems(items);
-}
-
-function updateItem(item) {
-	for (let i = 0; i < items.length; i++) {
-		if (items[i].id === item.id) {
-			items[i] = item;
-			break;
-		}
-	}
-
-	writeItems(items);
-}
-
-function deleteItem(id) {
-	for (let i = items.length -1; i >= 0 ; i--) {
-		if (items[i].id === id) {
-			items.splice(i, 1);
-			break;
-		}
-	}
-
-	writeItems(items);
-}
 
 module.exports = router;

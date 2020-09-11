@@ -1,11 +1,8 @@
 const express = require('express');
-const fs = require('fs');
-const router = express.Router();
-const path = require('path');
 const notification = require('../util/notification.js');
+const router = express.Router();
 
 router.post('/save-subscription', async (req, res) => {
-	console.log("Saving subscription");
 	await notification.addSubscription(req.body);
 
 	res.cookie('endpoint', req.body.endpoint, {

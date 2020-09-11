@@ -60,6 +60,8 @@ self.addEventListener("activate", async (event) => {
 });
 
 self.addEventListener('fetch', async function(event) {
+	// Caching strategies:
+	// https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker
 	if (event.request.method == 'GET' && event.request.url.indexOf('/api/') > -1) {
 		// Requesting dynamic data -> use "Cache then network" strategy
 		event.respondWith(

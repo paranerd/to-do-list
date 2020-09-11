@@ -1,5 +1,5 @@
-config/
-!config/.gitignore
 node_modules/
+config/vapid.json
+config/config.json
 subscription.txt
 items.json
