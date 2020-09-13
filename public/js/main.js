@@ -108,7 +108,6 @@ function addItemClickHandlers() {
 		// Handle paste on item
 		elem.addEventListener('paste', async (e) => {
 			e.preventDefault();
-			console.log("pasting...");
 
 			// Get index of current item
 			let index = getChildIndex(e.target.parentNode.parentNode);
@@ -134,17 +133,14 @@ function addItemClickHandlers() {
 
 			for (let i = 0; i < lines.length; i++) {
 				if (i == 0) {
-					console.log("IF");
 					// Update current item
 					await updateItem(id, {name: currentName + lines[i]});
 				}
 				else if (i == lines.length - 1) {
-					console.log("ELSE IF");
 					// Create last item
 					await createItem(lines[i] + newName, index + 1);
 				}
 				else {
-					console.log("ELSE");
 					// Create new item
 					await createItem(lines[i], index + 1);
 				}
@@ -152,14 +148,7 @@ function addItemClickHandlers() {
 				index++;
 			}
 
-			// Focus on new item
-			console.log("index", index);
-			console.log(document.querySelector('.item:nth-child(' + (index) + ')'));
-			console.log('.item:nth-child(' + (index) + ') [contenteditable]');
-
-			setTimeout(() => {
-				document.querySelector('.item:nth-child(' + (index) + ') [contenteditable]').focus();
-			}, 0);
+			document.querySelector('.item:nth-child(' + (index) + ') [contenteditable]').focus();
 		});
 
 
@@ -252,7 +241,6 @@ async function createItem(name, index = null) {
 	} catch (e) {
 		item = cache.create(name);
 	} finally {
-		console.log("create finally");
 		if (index) {
 			// Insert new item at index
 			items.splice(index, 0, item);
@@ -287,7 +275,6 @@ async function updateItem(id, update) {
 		item = cache.update(item);
 	}
 	finally {
-		console.log("update finally");
 		// Update items array
 		for (let i = 0; i < items.length; i++) {
 			if (items[i].id === id) {
@@ -369,7 +356,6 @@ function fetchItems() {
  * Build items list
  */
 function displayItems() {
-	console.log("displaying items...");
 	// Remove existing items
 	$("#items").empty();
 
@@ -378,8 +364,6 @@ function displayItems() {
 	}
 
 	addItemClickHandlers();
-
-	console.log("done displaying.");
 }
 
 /**
