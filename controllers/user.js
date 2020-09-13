@@ -2,26 +2,21 @@ const express = require('express');
 const notification = require('../util/notification.js');
 const router = express.Router();
 
-router.post('/save-subscription', async (req, res) => {
-	await notification.addSubscription(req.body);
+router.post('/subscribe', async (req, res) => {
+	await notification.subscribe(req.body);
 
+	// Save endpoint to cookie for recognition
 	res.cookie('endpoint', req.body.endpoint, {
 		maxAge: 1000 * 60 * 60 * 24 * 365,
-		httpOnly: true
+		httpOnly: true,
+		sameSite: "lax"
 	});
 
-	res.json({
-		message: 'success'
-	});
+	res.json({});
 });
 
-router.get('/send-notification', async (req, res) => {
-	try {
-		await notification.sendNotifications(req.query.msg);
-		res.json({message: "All sent"});
-	} catch (err) {
-		res.status(400).send(err.message);
-	}
+router.post('/unsubscribe', async (req, res) => {
+	await notification.unsubscribe(res.body);
 });
 
 module.exports = router;

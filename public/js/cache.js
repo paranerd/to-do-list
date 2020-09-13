@@ -26,13 +26,14 @@ class Cache {
     /**
      * Add updated item to localStorage
      * @param {Item} item
-     * @param {boolean} done
+     * @param {Object} update
      */
-    update(item, done) {
+    update(item, update) {
         let found = false;
         let cacheItems = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
 
-        item.done = done;
+        // Apply update
+        Object.assign(item, update);
         item.action = 'update';
         item.modified = Date.now();
 
@@ -57,6 +58,7 @@ class Cache {
     /**
      * Save item for deletion in localStorage
      * @param {Item} item
+     * @returns {Item}
      */
     delete(item) {
         let found = false;
@@ -108,7 +110,7 @@ class Cache {
                     break;
                 case 'update':
                     try {
-                        await api.update(item.id, item.done, item.modified);
+                        await api.update(item.id, item.done, item.name, item.modified);
                         cachedItems.splice(i, 1);
                     } catch (e) {
                         console.log(e);

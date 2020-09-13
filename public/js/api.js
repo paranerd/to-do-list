@@ -3,15 +3,20 @@ class Api {
         this.url = '/api/item';
     }
 
+    /**
+     * Create item
+     * 
+     * @param {string} name
+     * @param {number} ts
+     * @throws {Error}
+     * @returns {Item}
+     */
     async create(name, ts = null) {
         const params = {name: name, ts: ts};
 
         try {
             const res = await fetch(this.url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify(params)
             });
 
@@ -25,15 +30,21 @@ class Api {
         }
     }
     
-    async update(id, done, ts = null) {
-        const params = {id: id, done: done, ts: ts};
+    /**
+     * Update item
+     * 
+     * @param {string} id
+     * @param {boolean} done
+     * @param {number} ts
+     * @throws {Error}
+     * @returns {Item}
+     */
+    async update(item, ts = null) {
+        const params = Object.assign(item, ts);
 
         try {
             const res = await fetch(this.url, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify(params)
             });
 
@@ -47,15 +58,19 @@ class Api {
         }
     }
 
+    /**
+     * Delete item
+     * 
+     * @param {string} id
+     * @param {number} ts
+     * @throws {Error}
+     */
     async delete(id, ts = null) {
         const params = {id: id, ts: ts};
 
         try {
             const res = await fetch(this.url, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify(params)
             });
 

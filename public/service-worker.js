@@ -2,13 +2,14 @@
 
 const STATIC_CACHE_NAME = 'static-cache-v1';
 const DATA_CACHE_NAME = 'data-cache-v1';
-const SERVER_KEY = 'BM6_KGkGtIOZB5tJICG3SL9-ua0LP3KCnQHTf5yPnbn3imqbNyjoy-OpW1e-XIKOwdHOKUpA2Zebi6VSWTK6qAQ';
 
 const FILES_TO_CACHE = [
 	'/',
 	'/index.html',
 	'/manifest.json',
 	'/css/design.css',
+	'/js/api.js',
+	'/js/cache.js',
 	'/js/main.js',
 	'/images/icon.png',
 	'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
@@ -48,10 +49,11 @@ self.addEventListener("activate", async (event) => {
 	);
 
 	try {
-		const applicationServerKey = urlB64ToUint8Array(SERVER_KEY);
+		const publicKey = await getServerKey();
+		const applicationServerKey = urlB64ToUint8Array(publicKey);
 		const options = {applicationServerKey, userVisibleOnly: true};
 		const subscription = await self.registration.pushManager.subscribe(options);
-		const response = await saveSubscription(subscription);
+		await saveSubscription(subscription);
 	} catch (err) {
 		console.log('[ServiceWorker] Error', err);
 	}
@@ -121,20 +123,41 @@ self.addEventListener('notificationclick', function(event) {
 	}
 }, false);
 
+/**
+ * Save subscription
+ * 
+ * @param {Object} subscription
+ */
 async function saveSubscription(subscription) {
-	const response = await fetch('/api/user/save-subscription', {
+	const response = await fetch('/api/user/subscribe', {
 		method: 'post',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify(subscription),
 	});
-
-	return response.json();
 }
 
-// urlB64ToUint8Array is a magic function that will encode the base64 public key
-// to Array buffer which is needed by the subscription option
+/**
+ * Get public key for VAPID push notifications
+ * 
+ * @throws {Error}
+ * @returns {string}
+ */
+async function getServerKey() {
+	const res = await fetch('/api/vapid');
+
+	if (res.ok) {
+		return (await res.json()).pubKey;
+	}
+
+	throw new Error("Could not get server key");
+}
+
+/**
+ * urlB64ToUint8Array is a magic function that will encode the base64 public key
+ * to Array buffer which is needed by the subscription option
+ */
 function urlB64ToUint8Array(base64String) {
 	const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
 	const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/')
@@ -151,6 +174,7 @@ function urlB64ToUint8Array(base64String) {
 function addHeader(event) {
 	const request = new Request(event.request);
 	request.headers.set('x-my-custom-header', "This is some important value!");
+	request.headers.set('Content-Type', 'application/json');
 
 	return fetch(request);
 }

@@ -10,39 +10,31 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-	const name = req.body.name;
+	const name = req.body.name || "";
 	const created = req.body.created || Date.now();
 
-	if (!name) {
-		res.status(400).json({});
-		return;
-	}
-
 	const item = new Item({
-		name: req.body.name,
+		name: name,
 		created: created,
 		modified: created
 	});
 
 	await item.save();
 
-	await notification.sendNotifications(item.name + " added", req.cookies.endpoint);
+	await notification.send(item.name + " added", req.cookies.endpoint);
 
 	res.json(item);
 });
 
 router.patch('/', async (req, res) => {
-	const id = req.body.id;
-	const timestamp = req.body.ts || Date.now();
-	const done = !!req.body.done;
-	
-	let item = await Item.findOne({id: id});
-	item.done = done;
-	item.modified = Date.now();
+	let item = await Item.findOne({id: req.body.id});
+	item.name = req.body.name;
+	item.done = !!req.body.done;
+	item.modified = req.body.ts || Date.now();
 
 	await item.save();
 
-	await notification.sendNotifications(item.name + " updated", req.cookies.endpoint);
+	await notification.send(item.name + " updated", req.cookies.endpoint);
 
 	res.json(item);
 });
@@ -64,7 +56,7 @@ router.delete('/', async (req, res) => {
 
 	await item.remove();
 
-	await notification.sendNotifications(name + " removed", req.cookies.endpoint);
+	await notification.send(item.name + " removed", req.cookies.endpoint);
 
 	res.json({});
 });

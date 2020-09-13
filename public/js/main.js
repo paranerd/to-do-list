@@ -88,23 +88,125 @@ function addGeneralHandlers() {
 }
 
 /**
+ * Add empty item
+ * 
+ * @param {number} index
+ */
+async function addEmptyItem(index) {
+	// Create new item
+	await createItem("", index);
+
+	// Focus on new item
+	document.querySelector('.item:nth-child(' + (index + 1) + ') [contenteditable]').focus();
+}
+
+/**
  * Add handlers for item-clicks
  */
 function addItemClickHandlers() {
-	// Toggle checked
-	$(".items li").off('click').on('click', function(e) {
-		if ($(e.target).is('.item-remove')) {
-			return;
-		}
+	document.querySelectorAll('[contenteditable]').forEach((elem) => {
+		// Handle paste on item
+		elem.addEventListener('paste', async (e) => {
+			e.preventDefault();
+			console.log("pasting...");
 
+			// Get index of current item
+			let index = getChildIndex(e.target.parentNode.parentNode);
+
+			// Get ID of current item
+			const id = e.target.parentNode.parentNode.getAttribute('data-id');
+
+			// Get current item
+			const item = getItemById(id);
+
+			// Get caret position
+			const caretPos = getCaretPosition(e.target);
+
+			// Determine name of current item
+			const currentName = item.name.substring(0, caretPos);
+
+			// Determine name of new item
+			const newName = item.name.substring(caretPos);
+
+			// Get pasted text
+			const clipboardData = e.clipboardData || window.clipboardData;
+			const lines = clipboardData.getData('Text').split("\n");
+
+			for (let i = 0; i < lines.length; i++) {
+				if (i == 0) {
+					console.log("IF");
+					// Update current item
+					await updateItem(id, {name: currentName + lines[i]});
+				}
+				else if (i == lines.length - 1) {
+					console.log("ELSE IF");
+					// Create last item
+					await createItem(lines[i] + newName, index + 1);
+				}
+				else {
+					console.log("ELSE");
+					// Create new item
+					await createItem(lines[i], index + 1);
+				}
+
+				index++;
+			}
+
+			// Focus on new item
+			console.log("index", index);
+			console.log(document.querySelector('.item:nth-child(' + (index) + ')'));
+			console.log('.item:nth-child(' + (index) + ') [contenteditable]');
+
+			setTimeout(() => {
+				document.querySelector('.item:nth-child(' + (index) + ') [contenteditable]').focus();
+			}, 0);
+		});
+
+
+		// Handle [Return] on item
+		elem.addEventListener('keydown', async (e) => {
+			if (e.which === 13) {
+				e.preventDefault();
+
+				// Get index of current item
+				const index = getChildIndex(e.target.parentNode.parentNode);
+
+				// Get ID of current item
+				const id = e.target.parentNode.parentNode.getAttribute('data-id');
+
+				// Get current item
+				const item = getItemById(id);
+
+				// Get caret position
+				const caretPos = getCaretPosition(e.target);
+
+				// Determine name of current item
+				const currentName = item.name.substring(0, caretPos);
+
+				// Determine name of new item
+				const newName = item.name.substring(caretPos);
+
+				// Update current item
+				await updateItem(id, {name: currentName});
+
+				// Create new item
+				await createItem(newName, index + 1);
+
+				// Focus on new item
+				document.querySelector('.item:nth-child(' + (index + 1) + ') [contenteditable]').focus();
+			}
+		});
+	});
+
+	$(".item-status").off('click').on('click', function(e) {
 		$(this).find('i').toggleClass("fa-square");
 		$(this).find('i').toggleClass("fa-check-square");
 		$(this).toggleClass("item-done");
 
-		const id = $(this).data('id');
+		const id = e.target.parentNode.parentNode.getAttribute('data-id'); //$(this).parent()data('id');
 		const done = $(this).hasClass("item-done");
 
-		updateItem(id, done);
+		updateItem(id, {done: done});
 	});
 
 	// Remove
@@ -130,6 +232,7 @@ function showInstallButton() {
 
 /**
  * Capitalize string
+ * 
  * @param {string} str
  * @returns {string}
  */
@@ -139,36 +242,52 @@ function capitalize(str) {
 
 /**
  * Create item
+ * 
  * @param {string} name
  */
-async function createItem(name) {
+async function createItem(name, index = null) {
+	let item;
 	try {
-		const item = await api.create(name)
-		items.push(item);
+		item = await api.create(name)
 	} catch (e) {
-		const item = cache.create(name);
-		items.push(item);
+		item = cache.create(name);
 	} finally {
+		console.log("create finally");
+		if (index) {
+			// Insert new item at index
+			items.splice(index, 0, item);
+		}
+		else {
+			items.push(item);
+		}
+
 		displayItems();
 	}
 }
 
 /**
  * Update item status
+ * 
  * @param {string} id
  * @param {boolean} done
  */
-async function updateItem(id, done) {
+async function updateItem(id, update) {
 	let item = getItemById(id);
+	Object.assign(item, update);
 
 	try {
+		if (item.localOnly) {
+			throw new Error("Update in cache only");
+		}
+
 		// Try updating on the server
-		item = await api.update(id, done);
+		item = await api.update(item);
 	} catch (e) {
 		// Save the update for later instead
-		item = cache.update(item, done);
+		item = cache.update(item);
 	}
 	finally {
+		console.log("update finally");
 		// Update items array
 		for (let i = 0; i < items.length; i++) {
 			if (items[i].id === id) {
@@ -184,12 +303,17 @@ async function updateItem(id, done) {
 
 /**
  * Delete item
+ * 
  * @param {string} id
  */
 async function deleteItem(id) {
 	let item = getItemById(id);
 
 	try {
+		if (item.localOnly) {
+			throw new Error("Delete from cache only");
+		}
+
 		// Try deleting on the server
 		await api.delete(id);
 	} catch (e) {
@@ -245,12 +369,17 @@ function fetchItems() {
  * Build items list
  */
 function displayItems() {
+	console.log("displaying items...");
 	// Remove existing items
-	$(".items").empty();
+	$("#items").empty();
 
 	for (let item of items) {
 		showItem(item);
 	}
+
+	addItemClickHandlers();
+
+	console.log("done displaying.");
 }
 
 /**
@@ -259,31 +388,38 @@ function displayItems() {
  */
 function showItem(item) {
 	let itemDOM = document.createElement('li');
-	let icon = document.createElement('i');
+	let statusDOM = document.createElement('i');
+	statusDOM.className = "item-status";
+
+	itemDOM.className = "item d-flex justify-content-between align-items-center";
 
 	if (item.done) {
-		itemDOM.className = "item-done";
-		icon.className = "far fa-check-square";
+		itemDOM.classList.add("item-done");
+		statusDOM.classList.add("far", "fa-check-square");
 	}
 	else {
-		icon.className = "far fa-square";
+		statusDOM.classList.add("far", "fa-square");
 	}
 
 	let nameDOM = document.createElement('span');
-	nameDOM.className = "item-name";
+	nameDOM.className = "item-name flex-grow-1";
 	nameDOM.innerText = item.name;
+	nameDOM.contentEditable = true;
 
-	let remove = document.createElement('span');
-	remove.className = "item-remove";
-	remove.innerHTML = "&times;";
+	let removeDOM = document.createElement('button');
+	removeDOM.className = "item-remove btn btn-invisible"; "item-remove btn btn-outline-secondary btn-invisible";
+	removeDOM.innerHTML = "&times;";
 
-	itemDOM.appendChild(icon);
-	itemDOM.appendChild(nameDOM);
-	itemDOM.appendChild(remove);
+	let leftDOM = document.createElement('div');
+	leftDOM.className = "d-flex align-items-center flex-grow-1";
+
+	leftDOM.appendChild(statusDOM);
+	leftDOM.appendChild(nameDOM);
+
+	itemDOM.appendChild(leftDOM);
+	itemDOM.appendChild(removeDOM);
 	itemDOM.setAttribute('data-id', item.id);
-	$('.items').append(itemDOM);
-
-	addItemClickHandlers();
+	$('#items').append(itemDOM);
 }
 
 /**
@@ -331,3 +467,51 @@ function getItemById(id) {
 
 	return null;
 }
+
+/**
+ * Get index of element in parent
+ * 
+ * @param {HTMLElement} elem
+ * @returns {number}
+ */
+function getChildIndex(elem) {
+	let i = 0
+	while ((elem = elem.previousSibling) != null) ++i;
+
+	return i;
+}
+
+function getCaretPosition(elem) {
+	if (window.getSelection) {
+		const sel = window.getSelection();
+
+		if (sel.rangeCount) {
+			range = sel.getRangeAt(0);
+			if (range.commonAncestorContainer.parentNode == elem) {
+				return range.endOffset;
+			}
+		}
+	}
+	else if (document.selection && document.selection.createRange) {
+		const range = document.selection.createRange();
+
+		if (range.parentElement() == elem) {
+			const tempEl = document.createElement("span");
+			elem.insertBefore(tempEl, elem.firstChild);
+		
+			const tempRange = range.duplicate();
+			tempRange.moveToElementText(tempEl);
+			tempRange.setEndPoint("EndToEnd", range);
+			
+			return tempRange.text.length;
+		}
+	}
+
+	return 0;
+}
+
+/*
+line1
+line2
+line3
+*/

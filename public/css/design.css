@@ -21,27 +21,35 @@ input:focus {
 	color: white !important;
 }
 
-.items {
+#items {
 	list-style-type: none;
 }
 
-.items li:hover {
+#items li:hover {
 	cursor: pointer;
 }
 
-.items li i {
+#items li i {
 	color: #777;
 }
 
-.items li:hover i {
+#items li:hover i {
 	color: #111;
 }
 
-.items li span {
+.item {
+	padding: 10px 20px 10px 20px;
+	height: 50px;
+}
+.item:hover .item-remove {
+	visibility: visible;
+}
+
+#items li span {
 	margin-left: 10px;
 }
 
-.items li span.remove {
+#items li span.remove {
 	text-decoration: none !important;
 }
 
@@ -53,12 +61,29 @@ input:focus {
 	text-decoration: line-through;
 }
 
+.item-remove {
+	margin-left: auto;
+}
+
+.item-remove:hover {
+	font-weight: bold;
+}
+
 .hidden {
 	display: none;
+}
+
+.btn-invisible {
+	visibility: hidden;
 }
 
 #install {
 	position: absolute;
 	left: 20px;
 	bottom: 20px;
+}
+
+[contenteditable] {
+	outline: 0px solid transparent;
+	-webkit-user-select: text;
 }
