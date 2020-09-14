@@ -4,6 +4,7 @@ let items = [];
 const apiUrl = '/api/item';
 const api = new Api();
 const cache = new Cache();
+let pasting = false;
 
 $(document).ready(async function() {
 	try {
@@ -88,19 +89,6 @@ function addGeneralHandlers() {
 }
 
 /**
- * Add empty item
- * 
- * @param {number} index
- */
-async function addEmptyItem(index) {
-	// Create new item
-	await createItem("", index);
-
-	// Focus on new item
-	document.querySelector('.item:nth-child(' + (index + 1) + ') [contenteditable]').focus();
-}
-
-/**
  * Add handlers for item-clicks
  */
 function addItemClickHandlers() {
@@ -108,6 +96,9 @@ function addItemClickHandlers() {
 		// Handle paste on item
 		elem.addEventListener('paste', async (e) => {
 			e.preventDefault();
+
+			// Enter pasting state
+			pasting = true;
 
 			// Get index of current item
 			let index = getChildIndex(e.target.parentNode.parentNode);
@@ -122,10 +113,10 @@ function addItemClickHandlers() {
 			const caretPos = getCaretPosition(e.target);
 
 			// Determine name of current item
-			const currentName = item.name.substring(0, caretPos);
+			const currentName = e.target.innerText.substring(0, caretPos);
 
 			// Determine name of new item
-			const newName = item.name.substring(caretPos);
+			const newName = e.target.innerText.substring(caretPos);
 
 			// Get pasted text
 			const clipboardData = e.clipboardData || window.clipboardData;
@@ -138,17 +129,20 @@ function addItemClickHandlers() {
 				}
 				else if (i == lines.length - 1) {
 					// Create last item
-					await createItem(lines[i] + newName, index + 1);
+					await createItem(lines[i] + newName, index);
 				}
 				else {
 					// Create new item
-					await createItem(lines[i], index + 1);
+					await createItem(lines[i], index);
 				}
 
 				index++;
 			}
 
-			document.querySelector('.item:nth-child(' + (index) + ') [contenteditable]').focus();
+			document.querySelector('.item:nth-child(' + (index - 1) + ') [contenteditable]').focus();
+
+			// Leave pasting state
+			pasting = false;
 		});
 
 
@@ -170,20 +164,38 @@ function addItemClickHandlers() {
 				const caretPos = getCaretPosition(e.target);
 
 				// Determine name of current item
-				const currentName = item.name.substring(0, caretPos);
+				const currentName = e.target.innerText.substring(0, caretPos);
 
 				// Determine name of new item
-				const newName = item.name.substring(caretPos);
+				const newName = e.target.innerText.substring(caretPos);
 
 				// Update current item
 				await updateItem(id, {name: currentName});
 
 				// Create new item
-				await createItem(newName, index + 1);
+				await createItem(newName, index);
 
 				// Focus on new item
-				document.querySelector('.item:nth-child(' + (index + 1) + ') [contenteditable]').focus();
+				setTimeout(() => {
+					document.querySelector('.item:nth-child(' + (index + 1) + ') [contenteditable]').focus();
+				}, 10);
 			}
+		});
+
+		elem.addEventListener('focusout', async (e) => {
+			// Prevent falsey double update
+			if (pasting) {
+				return;
+			}
+
+			// Get ID of current item
+			const id = e.target.parentNode.parentNode.getAttribute('data-id');
+
+			// Get current item
+			const item = getItemById(id);
+
+			// Update item
+			await updateItem(id, {name: e.target.innerText});
 		});
 	});
 
@@ -233,12 +245,16 @@ function capitalize(str) {
  * Create item
  * 
  * @param {string} name
+ * @param {number} index
  */
 async function createItem(name, index = null) {
 	let item;
+
 	try {
+		// Try creating on the server
 		item = await api.create(name)
 	} catch (e) {
+		// Save creation for later instead
 		item = cache.create(name);
 	} finally {
 		if (index) {
@@ -246,9 +262,11 @@ async function createItem(name, index = null) {
 			items.splice(index, 0, item);
 		}
 		else {
+			// Insert new item at the end
 			items.push(item);
 		}
 
+		// Display updated items
 		displayItems();
 	}
 }
@@ -257,7 +275,7 @@ async function createItem(name, index = null) {
  * Update item status
  * 
  * @param {string} id
- * @param {boolean} done
+ * @param {Object} update
  */
 async function updateItem(id, update) {
 	let item = getItemById(id);
@@ -273,8 +291,7 @@ async function updateItem(id, update) {
 	} catch (e) {
 		// Save the update for later instead
 		item = cache.update(item);
-	}
-	finally {
+	} finally {
 		// Update items array
 		for (let i = 0; i < items.length; i++) {
 			if (items[i].id === id) {
@@ -453,13 +470,13 @@ function getItemById(id) {
 }
 
 /**
- * Get index of element in parent
+ * Get 1-based index of element in parent
  * 
  * @param {HTMLElement} elem
  * @returns {number}
  */
 function getChildIndex(elem) {
-	let i = 0
+	let i = 1;
 	while ((elem = elem.previousSibling) != null) ++i;
 
 	return i;
