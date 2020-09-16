@@ -30,7 +30,7 @@ function registerServiceWorker() {
 		window.addEventListener('load', function() {
 			navigator.serviceWorker.register('service-worker.js').then(function(registration) {
 				// Registration was successful
-				console.log("[ServiceWorker] Registered")
+				console.log("[ServiceWorker]", "Registered")
 				swRegistration = registration;
 
 				navigator.serviceWorker.addEventListener("message", handleSWMessage);
@@ -321,7 +321,6 @@ async function updateItem(id, update) {
 async function deleteItem(id) {
 	let item = getItemById(id);
 	item.modified = Date.now();
-	console.log("delete item", id, item);
 
 	try {
 		// Try deleting on the server

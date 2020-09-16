@@ -28,7 +28,6 @@ class Cache {
      * @param {Object} update
      */
     update(item) {
-        console.log("cache.update", item);
         let history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
 
         // Apply update
@@ -47,7 +46,6 @@ class Cache {
      * @returns {Item}
      */
     delete(item) {
-        console.log("cache.delete", item);
         let history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
 
         item.action = 'delete';
@@ -67,7 +65,6 @@ class Cache {
 
         for (let i = history.length - 1; i >= 0; i--) {
             const item = history[i];
-            console.log("cache.sync", item);
 
             switch (item.action) {
                 case 'create':

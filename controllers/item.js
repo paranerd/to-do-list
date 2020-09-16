@@ -9,7 +9,6 @@ const router = express.Router();
  * Endpoint to get all items
  */
 router.get('/', async (req, res) => {
-	console.log("Getting all...");
 	const items = await Item.find({}).sort({pos: 1});
 	res.json(items);
 });
@@ -19,10 +18,13 @@ router.get('/', async (req, res) => {
  */
 router.post('/', async (req, res) => {
 	try {
-		const item = await createItem(req.body);
+		const itemData = req.body;
+		const item = await createItem(itemData);
 
-		// Send notification
-		await notification.send(item.name + " added", req.cookies.endpoint);
+		if (itemData.name) {
+			// Send notification
+			await notification.send(itemData.name + " added", req.cookies.endpoint);
+		}
 	
 		res.json(item);
 	} catch (e) {
@@ -32,6 +34,44 @@ router.post('/', async (req, res) => {
 	}
 });
 
+router.patch('/', async (req, res) => {
+	try {
+		const itemData = req.body;
+		const item = await updateItem(itemData);
+
+		// Send notification
+		await notification.send(itemData.name + " updated", req.cookies.endpoint);
+	
+		res.json(item);
+	} catch (e) {
+		console.log(e);
+		const status = e.status ? e.status : 500;
+		res.status(status).json({'error': e.message});
+	}
+});
+
+router.delete('/', async (req, res) => {
+	try {
+		const itemData = req.body;
+		await deleteItem(itemData);
+
+		// Send notification
+		await notification.send(itemData.name + " removed", req.cookies.endpoint);
+
+		res.json({});
+	} catch (e) {
+		console.log(e);
+		const status = e.status ? e.status : 500;
+		res.status(status).json({'error': e.message});
+	}
+});
+
+/**
+ * Create item
+ * 
+ * @param {Item} itemData
+ * @returns {Item}
+ */
 async function createItem(itemData) {
 	const item = new Item(itemData);
 
@@ -54,36 +94,13 @@ async function createItem(itemData) {
 	return item;
 }
 
-router.patch('/', async (req, res) => {
-	try {
-		const item = await updateItem(req.body);
-
-		// Send notification
-		await notification.send(item.name + " updated", req.cookies.endpoint);
-	
-		res.json(item);
-	} catch (e) {
-		console.log(e);
-		const status = e.status ? e.status : 500;
-		res.status(status).json({'error': e.message});
-	}
-});
-
-router.delete('/', async (req, res) => {
-	try {
-		const item = await deleteItem(req.body);
-
-		// Send notification
-		await notification.send(item.name + " removed", req.cookies.endpoint);
-
-		res.json(item);
-	} catch (e) {
-		console.log(e);
-		const status = e.status ? e.status : 500;
-		res.status(status).json({'error': e.message});
-	}
-});
-
+/**
+ * Update item
+ * 
+ * @param {Item} itemData
+ * @throws {Error}
+ * @returns {Item}
+ */
 async function updateItem(itemData) {
 	let item = await Item.findOne({id: itemData.id});
 
@@ -111,6 +128,13 @@ async function updateItem(itemData) {
 	return item;
 }
 
+/**
+ * Delete item
+ * 
+ * @param {Item} itemData
+ * @throws {Error}
+ * @returns {boolean}
+ */
 async function deleteItem(itemData) {
 	const item = await Item.findOne({id: itemData.id});
 	itemData.modified = itemData.modified || Date.now();
@@ -130,7 +154,7 @@ async function deleteItem(itemData) {
 		await item.save();
 	}
 
-	await item.remove();
+	return await item.remove();
 }
 
 module.exports = router;
