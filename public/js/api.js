@@ -6,24 +6,21 @@ class Api {
     /**
      * Create item
      * 
-     * @param {string} name
-     * @param {number} ts
+     * @param {Item} item
      * @throws {Error}
      * @returns {Item}
      */
-    async create(name, ts = null) {
-        const params = {name: name, ts: ts};
-
+    async create(item) {
         try {
             const res = await fetch(this.url, {
                 method: 'POST',
-                body: JSON.stringify(params)
+                body: JSON.stringify(item)
             });
 
             if (!res.ok) {
                 throw Error(res.statusText);
             }
-    
+
             return await res.json();
         } catch (e) {
             throw new Error(e);
@@ -33,19 +30,15 @@ class Api {
     /**
      * Update item
      * 
-     * @param {string} id
-     * @param {boolean} done
-     * @param {number} ts
+     * @param {Item} item
      * @throws {Error}
      * @returns {Item}
      */
-    async update(item, ts = null) {
-        const params = Object.assign(item, ts);
-
+    async update(item) {
         try {
             const res = await fetch(this.url, {
                 method: 'PATCH',
-                body: JSON.stringify(params)
+                body: JSON.stringify(item)
             });
 
             if (!res.ok) {
@@ -61,17 +54,14 @@ class Api {
     /**
      * Delete item
      * 
-     * @param {string} id
-     * @param {number} ts
+     * @param {Item} item
      * @throws {Error}
      */
-    async delete(id, ts = null) {
-        const params = {id: id, ts: ts};
-
+    async delete(item) {
         try {
             const res = await fetch(this.url, {
                 method: 'DELETE',
-                body: JSON.stringify(params)
+                body: JSON.stringify(item)
             });
 
             if (!res.ok) {

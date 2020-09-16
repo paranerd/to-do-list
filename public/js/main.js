@@ -125,7 +125,7 @@ function addItemClickHandlers() {
 			for (let i = 0; i < lines.length; i++) {
 				if (i == 0) {
 					// Update current item
-					await updateItem(id, {name: currentName + lines[i]});
+					await updateItem(id, {name: currentName + lines[i], pos: index - 1});
 				}
 				else if (i == lines.length - 1) {
 					// Create last item
@@ -170,7 +170,7 @@ function addItemClickHandlers() {
 				const newName = e.target.innerText.substring(caretPos);
 
 				// Update current item
-				await updateItem(id, {name: currentName});
+				//await updateItem(id, {name: currentName, pos: index - 1});
 
 				// Create new item
 				await createItem(newName, index);
@@ -188,14 +188,19 @@ function addItemClickHandlers() {
 				return;
 			}
 
-			// Get ID of current item
+			// Get item index
+			const index = getChildIndex(e.target.parentNode.parentNode);
+
+			// Get item ID
 			const id = e.target.parentNode.parentNode.getAttribute('data-id');
 
-			// Get current item
+			// Get item
 			const item = getItemById(id);
 
 			// Update item
-			await updateItem(id, {name: e.target.innerText});
+			if (item && item.name !== e.target.innerText) {
+				await updateItem(id, {name: e.target.innerText, pos: index - 1});
+			}
 		});
 	});
 
@@ -204,10 +209,16 @@ function addItemClickHandlers() {
 		$(this).find('i').toggleClass("fa-check-square");
 		$(this).toggleClass("item-done");
 
-		const id = e.target.parentNode.parentNode.getAttribute('data-id'); //$(this).parent()data('id');
+		// Get item index
+		const index = getChildIndex(e.target.parentNode.parentNode);
+
+		// Get item ID
+		const id = e.target.parentNode.parentNode.getAttribute('data-id');
+
+		// Get item status
 		const done = $(this).hasClass("item-done");
 
-		updateItem(id, {done: done});
+		updateItem(id, {done: done, pos: index - 1});
 	});
 
 	// Remove
@@ -245,21 +256,21 @@ function capitalize(str) {
  * Create item
  * 
  * @param {string} name
- * @param {number} index
+ * @param {number} pos
  */
-async function createItem(name, index = null) {
-	let item;
+async function createItem(name, pos) {
+	let item = {name, pos};
 
 	try {
 		// Try creating on the server
-		item = await api.create(name)
+		item = await api.create(item)
 	} catch (e) {
 		// Save creation for later instead
-		item = cache.create(name);
+		item = cache.create(item);
 	} finally {
-		if (index) {
+		if (pos) {
 			// Insert new item at index
-			items.splice(index, 0, item);
+			items.splice(pos, 0, item);
 		}
 		else {
 			// Insert new item at the end
@@ -280,12 +291,9 @@ async function createItem(name, index = null) {
 async function updateItem(id, update) {
 	let item = getItemById(id);
 	Object.assign(item, update);
+	item.modified = Date.now();
 
 	try {
-		if (item.localOnly) {
-			throw new Error("Update in cache only");
-		}
-
 		// Try updating on the server
 		item = await api.update(item);
 	} catch (e) {
@@ -312,14 +320,12 @@ async function updateItem(id, update) {
  */
 async function deleteItem(id) {
 	let item = getItemById(id);
+	item.modified = Date.now();
+	console.log("delete item", id, item);
 
 	try {
-		if (item.localOnly) {
-			throw new Error("Delete from cache only");
-		}
-
 		// Try deleting on the server
-		await api.delete(id);
+		await api.delete(item);
 	} catch (e) {
 		// Save deletion for later instead
 		item = cache.delete(item);
@@ -346,9 +352,9 @@ function fetchItems() {
 	// Fetch network data
 	let networkUpdate = fetch(apiUrl).then(function(response) {
 		return response.json();
-	}).then(function(data) {
+	}).then(async function(data) {
 		networkDataReceived = true;
-		items = data;
+		items = await cache.rebuild(data);
 		displayItems();
 	});
 
@@ -356,10 +362,10 @@ function fetchItems() {
 	caches.match(apiUrl).then(function(response) {
 		if (!response) throw Error("No data");
 		return response.json();
-	}).then(function(data) {
+	}).then(async function(data) {
 		// Only update if there was no network update (yet)
 		if (!networkDataReceived) {
-			items = data;
+			items = await cache.rebuild(data);
 			displayItems();
 		}
 	}).catch(function() {

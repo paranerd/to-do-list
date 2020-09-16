@@ -8,9 +8,6 @@ const FILES_TO_CACHE = [
 	'/index.html',
 	'/manifest.json',
 	'/css/design.css',
-	'/js/api.js',
-	'/js/cache.js',
-	'/js/main.js',
 	'/images/icon.png',
 	'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css',
 	'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css',
@@ -18,30 +15,34 @@ const FILES_TO_CACHE = [
 	'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js',
 	'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js',
 	'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/webfonts/fa-solid-900.woff2',
-	'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/webfonts/fa-regular-400.woff2'
+	'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/webfonts/fa-regular-400.woff2',
+	'https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js',
+	'/js/api.js',
+	'/js/cache.js',
+	'/js/main.js'
 ];
 
 self.addEventListener('install', function(event) {
-	console.log('[ServiceWorker] Install');
+	console.log("[ServiceWorker]", "Install");
 
 	self.skipWaiting();
 
 	event.waitUntil(
 		caches.open(STATIC_CACHE_NAME).then((cache) => {
-			console.log('[ServiceWorker] Pre-caching offline page');
+			console.log("[ServiceWorker]", "Pre-caching offline page");
 			return cache.addAll(FILES_TO_CACHE);
 		})
 	);
 });
 
 self.addEventListener("activate", async (event) => {
-	console.log('[ServiceWorker] Activate');
+	console.log("[ServiceWorker]", "Activate");
 
 	event.waitUntil(
 		caches.keys().then(function(keyList) {
 			return Promise.all(keyList.map(function(key) {
 				if (key !== STATIC_CACHE_NAME && key !== DATA_CACHE_NAME) {
-					console.log('[ServiceWorker] Removing old cache', key);
+					console.log("[ServiceWorker]", "Removing old cache", key);
 					return caches.delete(key);
 				}
 			}));
@@ -55,7 +56,7 @@ self.addEventListener("activate", async (event) => {
 		const subscription = await self.registration.pushManager.subscribe(options);
 		await saveSubscription(subscription);
 	} catch (err) {
-		console.log('[ServiceWorker] Error', err);
+		console.log("[ServiceWorker]", "Error", err);
 	}
 
 	self.clients.claim();
@@ -95,7 +96,7 @@ self.addEventListener('push', function(event) {
 			});
 		});
 
-		console.log("[ServiceWorker] Push event:", event.data.text());
+		console.log("[ServiceWorker]", "Push event", event.data.text());
 		self.registration.showNotification("To-Do List updated", {
 			icon: "images/icon.png",
 			body: event.data.text(),
@@ -110,7 +111,7 @@ self.addEventListener('push', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
-	console.log(event);
+	console.log("[ServiceWorker]", event);
 	event.notification.close();
 
 	if (event.action === 'clickme') {
