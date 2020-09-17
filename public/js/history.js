@@ -1,4 +1,4 @@
-class Cache {
+class History {
     constructor() {}
 
     /**
@@ -72,8 +72,8 @@ class Cache {
                         await api.create(item);
                         history.splice(i, 1);
                         localStorage.setItem('history', history);
-                    } catch (e) {
-                        console.log(e);
+                    } catch (err) {
+                        console.error(err);
                     }
                     break;
                 case 'update':
@@ -81,8 +81,8 @@ class Cache {
                         await api.update(item);
                         history.splice(i, 1);
                         localStorage.setItem('history', history);
-                    } catch (e) {
-                        console.log(e);
+                    } catch (err) {
+                        console.error(err);
                     }
                     break;
                 case 'delete':
@@ -90,8 +90,8 @@ class Cache {
                         await api.delete(item);
                         history.splice(i, 1);
                         localStorage.setItem('history', history);
-                    } catch (e) {
-                        console.log(e);
+                    } catch (err) {
+                        console.error(err);
                     }
                     break;
             }

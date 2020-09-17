@@ -18,7 +18,7 @@ const FILES_TO_CACHE = [
 	'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/webfonts/fa-regular-400.woff2',
 	'https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js',
 	'/js/api.js',
-	'/js/cache.js',
+	'/js/history.js',
 	'/js/main.js'
 ];
 
@@ -56,7 +56,7 @@ self.addEventListener("activate", async (event) => {
 		const subscription = await self.registration.pushManager.subscribe(options);
 		await saveSubscription(subscription);
 	} catch (err) {
-		console.log("[ServiceWorker]", "Error", err);
+		console.error("[ServiceWorker]", "Error", err);
 	}
 
 	self.clients.claim();

@@ -21,20 +21,28 @@ input:focus {
 	color: white !important;
 }
 
-#items {
+.items {
 	list-style-type: none;
 }
 
-#items li:hover {
+.items li:hover {
 	cursor: pointer;
 }
 
-#items li i {
+.items li i {
 	color: #777;
 }
 
-#items li:hover i {
+.items li:hover i {
 	color: #111;
+}
+
+.items li span {
+	margin-left: 10px;
+}
+
+.items li span.remove {
+	text-decoration: none !important;
 }
 
 .item {
@@ -43,14 +51,6 @@ input:focus {
 }
 .item:hover .item-remove {
 	visibility: visible;
-}
-
-#items li span {
-	margin-left: 10px;
-}
-
-#items li span.remove {
-	text-decoration: none !important;
 }
 
 .item-done * {

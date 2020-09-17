@@ -23,12 +23,12 @@ router.post('/', async (req, res) => {
 
 		if (itemData.name) {
 			// Send notification
-			await notification.send(itemData.name + " added", req.cookies.endpoint);
+			//notification.send(itemData.name + " added", req.cookies.endpoint);
 		}
 	
 		res.json(item);
-	} catch (e) {
-		console.log(e);
+	} catch (err) {
+		console.error(err);
 		const status = e.status ? e.status : 500;
 		res.status(status).json({'error': e.message});
 	}
@@ -40,11 +40,11 @@ router.patch('/', async (req, res) => {
 		const item = await updateItem(itemData);
 
 		// Send notification
-		await notification.send(itemData.name + " updated", req.cookies.endpoint);
+		//notification.send(itemData.name + " updated", req.cookies.endpoint);
 	
 		res.json(item);
-	} catch (e) {
-		console.log(e);
+	} catch (err) {
+		console.error(err);
 		const status = e.status ? e.status : 500;
 		res.status(status).json({'error': e.message});
 	}
@@ -56,11 +56,11 @@ router.delete('/', async (req, res) => {
 		await deleteItem(itemData);
 
 		// Send notification
-		await notification.send(itemData.name + " removed", req.cookies.endpoint);
+		//notification.send(itemData.name + " removed", req.cookies.endpoint);
 
 		res.json({});
-	} catch (e) {
-		console.log(e);
+	} catch (err) {
+		console.error(err);
 		const status = e.status ? e.status : 500;
 		res.status(status).json({'error': e.message});
 	}

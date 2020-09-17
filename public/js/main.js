@@ -3,7 +3,7 @@ let swRegistration = null;
 let items = [];
 const apiUrl = '/api/item';
 const api = new Api();
-const cache = new Cache();
+const history = new History();
 let pasting = false;
 
 $(document).ready(async function() {
@@ -11,11 +11,11 @@ $(document).ready(async function() {
 		registerServiceWorker();
 		requestNotificationPermission();
 	} catch (err) {
-		console.log(err);
+		console.error(err);
 	}
 
 	addGeneralHandlers();
-	await cache.sync();
+	await history.sync();
 	fetchItems();
 	showInstallButton();
 });
@@ -35,7 +35,7 @@ function registerServiceWorker() {
 
 				navigator.serviceWorker.addEventListener("message", handleSWMessage);
 			}).catch(function(err) {
-				console.log(err);
+				console.error(err);
 			});
 		});
 	}
@@ -51,7 +51,7 @@ function addGeneralHandlers() {
 	// When the browser switches from offline to online, push any cached actions
 	window.addEventListener('online', async function() {
 		if (navigator.onLine) {
-			await cache.sync();
+			await history.sync();
 			fetchItems();
 		}
 	});
@@ -77,9 +77,6 @@ function addGeneralHandlers() {
 	$("#create-item").on('submit', function(e) {
 		e.preventDefault();
 
-		// Capitalize item name
-		const name = capitalize($(this).find('input').val());
-
 		// Reset input
 		this.reset();
 
@@ -100,14 +97,15 @@ function addItemClickHandlers() {
 			// Enter pasting state
 			pasting = true;
 
-			// Get index of current item
-			let index = getChildIndex(e.target.parentNode.parentNode);
-
 			// Get ID of current item
 			const id = e.target.parentNode.parentNode.getAttribute('data-id');
 
 			// Get current item
 			const item = getItemById(id);
+
+			// Get index of current item
+			//let index = getChildIndex(e.target.parentNode.parentNode);
+			let index = item.pos + 1;
 
 			// Get caret position
 			const caretPos = getCaretPosition(e.target);
@@ -151,14 +149,14 @@ function addItemClickHandlers() {
 			if (e.which === 13) {
 				e.preventDefault();
 
-				// Get index of current item
-				const index = getChildIndex(e.target.parentNode.parentNode);
-
 				// Get ID of current item
 				const id = e.target.parentNode.parentNode.getAttribute('data-id');
 
 				// Get current item
 				const item = getItemById(id);
+
+				// Get index of current item
+				const index = item.pos + 1;
 
 				// Get caret position
 				const caretPos = getCaretPosition(e.target);
@@ -170,7 +168,7 @@ function addItemClickHandlers() {
 				const newName = e.target.innerText.substring(caretPos);
 
 				// Update current item
-				//await updateItem(id, {name: currentName, pos: index - 1});
+				await updateItem(id, {name: currentName, pos: index - 1});
 
 				// Create new item
 				await createItem(newName, index);
@@ -188,14 +186,15 @@ function addItemClickHandlers() {
 				return;
 			}
 
-			// Get item index
-			const index = getChildIndex(e.target.parentNode.parentNode);
-
 			// Get item ID
 			const id = e.target.parentNode.parentNode.getAttribute('data-id');
 
 			// Get item
 			const item = getItemById(id);
+
+			// Get item index
+			//const index = getChildIndex(e.target.parentNode.parentNode);
+			const index = item.pos + 1;
 
 			// Update item
 			if (item && item.name !== e.target.innerText) {
@@ -205,18 +204,25 @@ function addItemClickHandlers() {
 	});
 
 	$(".item-status").off('click').on('click', function(e) {
-		$(this).find('i').toggleClass("fa-square");
-		$(this).find('i').toggleClass("fa-check-square");
-		$(this).toggleClass("item-done");
+		const itemDOM = e.target.parentNode.parentNode;
+		itemDOM.classList.toggle('item-done');
 
-		// Get item index
-		const index = getChildIndex(e.target.parentNode.parentNode);
+		// Update icon
+		e.target.classList.toggle('fa-square');
+		e.target.classList.toggle('fa-check-square');
 
 		// Get item ID
-		const id = e.target.parentNode.parentNode.getAttribute('data-id');
+		const id = itemDOM.getAttribute('data-id');
+
+		// Get item
+		const item = getItemById(id);
 
 		// Get item status
-		const done = $(this).hasClass("item-done");
+		const done = itemDOM.classList.contains('item-done');
+
+		// Get item index
+		//const index = getChildIndex(e.target.parentNode.parentNode);
+		const index = item.pos + 1;
 
 		updateItem(id, {done: done, pos: index - 1});
 	});
@@ -243,32 +249,22 @@ function showInstallButton() {
 }
 
 /**
- * Capitalize string
- * 
- * @param {string} str
- * @returns {string}
- */
-function capitalize(str) {
-	return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
  * Create item
  * 
  * @param {string} name
  * @param {number} pos
  */
-async function createItem(name, pos) {
+async function createItem(name, pos = null) {
 	let item = {name, pos};
 
 	try {
 		// Try creating on the server
 		item = await api.create(item)
-	} catch (e) {
+	} catch (err) {
 		// Save creation for later instead
-		item = cache.create(item);
+		item = history.create(item);
 	} finally {
-		if (pos) {
+		if (pos !== null) {
 			// Insert new item at index
 			items.splice(pos, 0, item);
 		}
@@ -276,6 +272,9 @@ async function createItem(name, pos) {
 			// Insert new item at the end
 			items.push(item);
 		}
+
+		// Reset positions
+		resetPositions();
 
 		// Display updated items
 		displayItems();
@@ -296,9 +295,9 @@ async function updateItem(id, update) {
 	try {
 		// Try updating on the server
 		item = await api.update(item);
-	} catch (e) {
+	} catch (err) {
 		// Save the update for later instead
-		item = cache.update(item);
+		item = history.update(item);
 	} finally {
 		// Update items array
 		for (let i = 0; i < items.length; i++) {
@@ -307,6 +306,9 @@ async function updateItem(id, update) {
 				break;
 			}
 		}
+
+		// Reset positions
+		resetPositions();
 
 		// Display updated items
 		displayItems();
@@ -325,9 +327,9 @@ async function deleteItem(id) {
 	try {
 		// Try deleting on the server
 		await api.delete(item);
-	} catch (e) {
+	} catch (err) {
 		// Save deletion for later instead
-		item = cache.delete(item);
+		item = history.delete(item);
 	} finally {
 		// Update items array
 		for (let i = 0; i < items.length; i++) {
@@ -337,40 +339,21 @@ async function deleteItem(id) {
 			}
 		}
 
+		// Reset positions
+		resetPositions();
+
 		// Display updated items
 		displayItems();
 	}
 }
 
 /**
- * Fetch items from network or cache if unavailable
+ * Fetch items, populate items array and trigger rendering
  */
 function fetchItems() {
-	let networkDataReceived = false;
-
-	// Fetch network data
-	let networkUpdate = fetch(apiUrl).then(function(response) {
-		return response.json();
-	}).then(async function(data) {
-		networkDataReceived = true;
-		items = await cache.rebuild(data);
+	api.fetch((data) => {
+		items = data;
 		displayItems();
-	});
-
-	// Fetch cached data
-	caches.match(apiUrl).then(function(response) {
-		if (!response) throw Error("No data");
-		return response.json();
-	}).then(async function(data) {
-		// Only update if there was no network update (yet)
-		if (!networkDataReceived) {
-			items = await cache.rebuild(data);
-			displayItems();
-		}
-	}).catch(function() {
-		return networkUpdate;
-	}).catch(function() {
-		console.log("Error fetching data");
 	});
 }
 
@@ -379,20 +362,58 @@ function fetchItems() {
  */
 function displayItems() {
 	// Remove existing items
-	$("#items").empty();
+	$("#items, #items-done").empty();
 
+	// Container for checked items
+	let itemsDone = [];
+
+	// Show unchecked items
 	for (let item of items) {
-		showItem(item);
+		if (item.done) {
+			itemsDone.push(item);
+		}
+		else {
+			showItem(item);
+		}
 	}
 
+	// Show/hide separator
+	if (itemsDone.length) {
+		document.getElementById('items-divider').classList.remove('hidden');
+	}
+	else {
+		document.getElementById('items-divider').classList.add('hidden');
+	}
+
+	// Show checked items
+	for (let item of itemsDone) {
+		showItem(item, true);
+	}
+
+	// Add click handlers
 	addItemClickHandlers();
+}
+
+function sortObjects(property) {
+	return function(obj1, obj2) {
+		if (obj1[property] < obj2[property]) {
+			return -1;
+		}
+		else if (obj1[property] > obj2[property]) {
+			return 1;
+		}
+	
+		return 0;
+	}
 }
 
 /**
  * Create item DOM
+ * 
  * @param {Item} item
+ * @param {boolean} isDone
  */
-function showItem(item) {
+function showItem(item, isDone = false) {
 	let itemDOM = document.createElement('li');
 	let statusDOM = document.createElement('i');
 	statusDOM.className = "item-status";
@@ -425,13 +446,16 @@ function showItem(item) {
 	itemDOM.appendChild(leftDOM);
 	itemDOM.appendChild(removeDOM);
 	itemDOM.setAttribute('data-id', item.id);
-	$('#items').append(itemDOM);
+
+	// Get parent
+	const parentId = isDone ? 'items-done' : 'items';
+	$('#' + parentId).append(itemDOM);
 }
 
 /**
  * Handle messages from Service Worker
  *
- * @param event e
+ * @param {event} e
  */
 function handleSWMessage(e) {
 	console.log(`Navigator SW received a msg: ${e.data}`);
@@ -475,6 +499,16 @@ function getItemById(id) {
 }
 
 /**
+ * Set item positions
+ * according to their position in the global array
+ */
+function resetPositions() {
+	for (let i = 0; i < items.length; i++) {
+		items[i].pos = i;
+	}
+}
+
+/**
  * Get 1-based index of element in parent
  * 
  * @param {HTMLElement} elem
@@ -487,6 +521,12 @@ function getChildIndex(elem) {
 	return i;
 }
 
+/**
+ * Get caret position within editable HTML
+ * 
+ * @param {HTMLElement} elem
+ * @returns {number}
+ */
 function getCaretPosition(elem) {
 	if (window.getSelection) {
 		const sel = window.getSelection();
@@ -515,9 +555,3 @@ function getCaretPosition(elem) {
 
 	return 0;
 }
-
-/*
-line1
-line2
-line3
-*/

@@ -3,6 +3,36 @@ class Api {
         this.url = '/api/item';
     }
 
+    async fetch(callback) {
+        let networkDataReceived = false;
+        let items;
+
+        // Fetch network data
+        let networkUpdate = fetch(this.url).then(function(response) {
+            return response.json();
+        }).then(async function(data) {
+            networkDataReceived = true;
+            items = await history.rebuild(data);
+            callback(items);
+        });
+    
+        // Fetch cached data
+        caches.match(this.url).then(function(response) {
+            if (!response) throw Error("No data");
+            return response.json();
+        }).then(async function(data) {
+            // Only update if there was no network update (yet)
+            if (!networkDataReceived) {
+                items = await history.rebuild(data);
+                callback(items);
+            }
+        }).catch(function() {
+            return networkUpdate;
+        }).catch(function(e) {
+            console.error("Error fetching data", e);
+        });
+    }
+
     /**
      * Create item
      * 
