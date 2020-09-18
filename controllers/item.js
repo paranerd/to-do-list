@@ -9,7 +9,13 @@ const router = express.Router();
  * Endpoint to get all items
  */
 router.get('/', async (req, res) => {
-	const items = await Item.find({}).sort({pos: 1});
+	let query = Item.find({}).sort({pos: 1});
+
+	if (req.query.limit) {
+		query = query.limit(parseInt(req.query.limit));
+	}
+
+	const items = await query;
 	res.json(items);
 });
 

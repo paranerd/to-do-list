@@ -1,4 +1,5 @@
 # To-Do List
+This is a self-hosted To-Do-List. See also the [Alexa Companion Skill](https://github.com/paranerd/to-do-list-alexa-skill).
 
 ## Prerequisites
 ### Set up push notifications

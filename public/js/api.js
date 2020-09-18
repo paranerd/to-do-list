@@ -28,8 +28,8 @@ class Api {
             }
         }).catch(function() {
             return networkUpdate;
-        }).catch(function(e) {
-            console.error("Error fetching data", e);
+        }).catch(function(err) {
+            console.error("Error fetching data", err);
         });
     }
 
@@ -52,8 +52,8 @@ class Api {
             }
 
             return await res.json();
-        } catch (e) {
-            throw new Error(e);
+        } catch (err) {
+            throw new Error(err);
         }
     }
     
@@ -76,8 +76,8 @@ class Api {
             }
 
             return await res.json();
-        } catch (e) {
-            throw new Error(e);
+        } catch (err) {
+            throw new Error(err);
         }
     }
 
@@ -97,8 +97,8 @@ class Api {
             if (!res.ok) {
                 throw Error(res.statusText);
             }
-        } catch (e) {
-            throw new Error(e);
+        } catch (err) {
+            throw new Error(err);
         }
     }
 }
