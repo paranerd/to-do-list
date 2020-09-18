@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
 
 		if (itemData.name) {
 			// Send notification
-			//notification.send(itemData.name + " added", req.cookies.endpoint);
+			notification.send(itemData.name + " added", req.cookies.endpoint);
 		}
 	
 		res.json(item);
@@ -46,7 +46,7 @@ router.patch('/', async (req, res) => {
 		const item = await updateItem(itemData);
 
 		// Send notification
-		//notification.send(itemData.name + " updated", req.cookies.endpoint);
+		notification.send(itemData.name + " updated", req.cookies.endpoint);
 	
 		res.json(item);
 	} catch (err) {
@@ -62,7 +62,7 @@ router.delete('/', async (req, res) => {
 		await deleteItem(itemData);
 
 		// Send notification
-		//notification.send(itemData.name + " removed", req.cookies.endpoint);
+		notification.send(itemData.name + " removed", req.cookies.endpoint);
 
 		res.json({});
 	} catch (err) {
