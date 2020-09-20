@@ -59,27 +59,7 @@ async function send(msg='', endpoint='') {
 	}
 }
 
-/**
- * Save subscription
- * 
- * @param {Object} subscription
- */
-async function subscribe(subscription) {
-	await Subscription.findOneOrCreate(subscription);
-}
-
-/**
- * Delete subscription
- * 
- * @param {Object} subscription
- */
-async function unsubscribe(subscription) {
-	await Subscription.remove(subscription);
-}
-
 module.exports = {
 	loadVapidKeys,
-	subscribe,
-	unsubscribe,
 	send
 }

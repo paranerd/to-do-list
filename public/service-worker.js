@@ -130,7 +130,7 @@ self.addEventListener('notificationclick', function(event) {
  * @param {Object} subscription
  */
 async function saveSubscription(subscription) {
-	const response = await fetch('/api/user/subscribe', {
+	const response = await fetch('/api/subscription', {
 		method: 'post',
 		headers: {
 			'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ async function saveSubscription(subscription) {
  * @returns {string}
  */
 async function getServerKey() {
-	const res = await fetch('/api/vapid');
+	const res = await fetch('/api/subscription/vapid');
 
 	if (res.ok) {
 		return (await res.json()).pubKey;
