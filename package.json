@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "nodemon -e html,css,js server.js",
+    "test": "nodemon -e html,css,js,hbs server.js",
     "start": "pm2 start server.js --name todo"
   },
   "author": "paranerd",
@@ -13,6 +13,7 @@
     "cookie-parser": "^1.4.4",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-handlebars": "^5.1.0",
     "mongoose": "^5.10.4",
     "nodemon": "^2.0.1",
     "uuid": "^8.3.0",
