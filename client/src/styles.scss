@@ -1,0 +1,116 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities'; 
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    padding-top: 5rem;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+
+    .tooltip-text {
+        opacity: 0;
+        transition: opacity 1s;
+        visibility: hidden;
+        width: 120px;
+        background-color: rgba(74, 85, 104, 0.9); /* #4a5568 */
+        color: white;
+        text-align: center;
+        padding: 5px 0;
+        border-radius: 6px;
+        position: absolute;
+        z-index: 1;
+    }
+
+    &:hover .tooltip-text {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.tooltip-right {
+    .tooltip-text {
+        top: -5px;
+        left: 120%;
+    }
+
+    .tooltip-text::after {
+        content: " ";
+        position: absolute;
+        top: 50%;
+        right: 100%;
+        margin-top: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent rgba(74, 85, 104, 0.9) transparent transparent;
+    }
+}
+
+.tooltip-left {
+    .tooltip-text {
+        top: -5px;
+        right: 120%;
+    }
+
+    .tooltip-text::after {
+        content: " ";
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        margin-top: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent transparent transparent rgba(74, 85, 104, 0.9);
+    }
+}
+
+.tooltip-top {
+    .tooltip-text {
+        width: 120px;
+        bottom: 120%;
+        left: 50%;
+        margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+    }
+
+    .tooltip-text::after {
+        content: " ";
+        position: absolute;
+        top: 100%; /* At the bottom of the tooltip */
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: rgba(74, 85, 104, 0.9) transparent transparent transparent;
+    }
+}
+
+.tooltip-bottom {
+    .tooltip-text {
+        width: 120px;
+        top: 120%;
+        left: 50%;
+        margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+    }
+
+    .tooltip-text::after {
+        content: " ";
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent transparent rgba(74, 85, 104, 0.9) transparent;
+    }
+}
