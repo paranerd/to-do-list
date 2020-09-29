@@ -23,7 +23,7 @@ router.get('/', auth.isAuthenticated(), async (req, res) => {
 /**
  * Create item
  */
-router.post('/', async (req, res) => {
+router.post('/',auth.isAuthenticated(), async (req, res) => {
     try {
         const itemData = req.body;
         const item = await createItem(itemData);
@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.patch('/', async (req, res) => {
+router.patch('/', auth.isAuthenticated(), async (req, res) => {
     try {
         const itemData = req.body;
         const { itemOld, item } = await updateItem(itemData);
@@ -59,7 +59,7 @@ router.patch('/', async (req, res) => {
     }
 });
 
-router.delete('/', async (req, res) => {
+router.delete('/', auth.isAuthenticated(), async (req, res) => {
     try {
         const itemData = req.body;
         await deleteItem(itemData);
