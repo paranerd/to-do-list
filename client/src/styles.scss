@@ -1,6 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+/* purgecss start ignore */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
+/* purgecss end ignore */
 @import 'tailwindcss/utilities'; 
 
 html,
