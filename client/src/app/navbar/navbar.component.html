@@ -19,8 +19,8 @@
 
         <!-- Dropdown menu -->
         <div *ngIf="menuOpen" class="absolute right-0 mt-2 w-48 py-2 bg-white rounded-lg text-gray-800 shadow-xl">
-            <a [routerLink]="['/access-management']" class="px-4 py-2 block hover:bg-teal-600 hover:text-white" href="#" *ngIf="this.auth.getCurrentUser().isAdmin">Access Management</a>
-            <a href="#" (click)="logout()" class="px-4 py-2 block hover:bg-teal-600 hover:text-white">Logout</a>
+            <a [routerLink]="['/access-management']" class="px-4 py-2 block hover:bg-teal-600 hover:text-white" href="#" *ngIf="this.auth.getCurrentUser().isAdmin" (click)="menuOpen = false">Access Management</a>
+            <a href="#" (click)="logout()" class="px-4 py-2 block hover:bg-teal-600 hover:text-white" (click)="menuOpen = false">Logout</a>
         </div>
     </div>
 
