@@ -1,7 +1,7 @@
 {
-  "name": "client",
-  "short_name": "client",
-  "theme_color": "#1976d2",
+  "name": "To-Do List",
+  "short_name": "To-Do List",
+  "theme_color": "#38B2AC",
   "background_color": "#fafafa",
   "display": "standalone",
   "scope": "./",
