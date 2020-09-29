@@ -11,11 +11,23 @@ class ConfigHelper {
 
     /**
      * Load config from file
+     *
+     * @returns {Object}
      */
     load() {
-        let raw = fs.readFileSync(this.location);
+        // Return config if exists
+        if (fs.existsSync(this.location)) {
+            const raw = fs.readFileSync(this.location);
 
-        return JSON.parse(raw);
+            return JSON.parse(raw);
+        }
+        // Create if not
+        else {
+            const config = {};
+            fs.writeFileSync(this.location, JSON.stringify(config, null, 4));
+
+            return config;
+        }
     }
 
     /**
