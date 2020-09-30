@@ -10,7 +10,6 @@ router.use(cors());
 // Include all controllers
 router.use('/api/item', require('./item').router);
 router.use('/api/subscription', require('./subscription').router);
-router.use('/api/auth', require('./auth').router);
 router.use('/api/user', require('./user').router);
 router.use('/api/service-token', require('./serviceToken').router);
 
