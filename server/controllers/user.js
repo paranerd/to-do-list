@@ -3,8 +3,7 @@ const User = require('../models/user');
 const auth = require('../util/auth');
 const router = express.Router();
 
-router.post('/', async function(req, res) {
-    console.log("creating", req.body);
+router.post('/', auth.isAuthenticated(true), async function(req, res) {
 	// Read request body
     const { username, password1, password2 } = req.body;
 
