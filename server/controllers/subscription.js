@@ -1,9 +1,10 @@
 const express = require('express');
 const notification = require('../util/notification.js');
 const Subscription = require('../models/subscription');
+const auth = require('../util/auth');
 const router = express.Router();
 
-router.get(['/vapid'], (req, res) => {
+router.get(['/vapid'], auth.isAuthenticated(), (req, res) => {
     const vapid = notification.loadVapidKeys();
 
     if (vapid) {
@@ -14,7 +15,7 @@ router.get(['/vapid'], (req, res) => {
     res.status(404).json({});
 });
 
-router.post('/', async (req, res) => {
+router.post('/', auth.isAuthenticated(), async (req, res) => {
 	await Subscription.findOneOrCreate(req.body);
 	
 	// Save endpoint to cookie for recognition
@@ -27,7 +28,7 @@ router.post('/', async (req, res) => {
 	res.json({});
 });
 
-router.delete('/', async (req, res) => {
+router.delete('/', auth.isAuthenticated(), async (req, res) => {
     await Subscription.remove(res.body);
 });
 
