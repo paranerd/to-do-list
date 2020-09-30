@@ -61,21 +61,12 @@ export class PushService {
     }
 
     /**
-     * Get VAPID public key from localStorage or server
+     * Get VAPID public key from server
      */
     private getPublicKey(): Promise<string> {
         return new Promise((resolve, reject) => {
-            // Try to load from localStorage
-            if (localStorage.getItem('vapid')) {
-                const publicKey = localStorage.getItem('vapid');
-                resolve(publicKey);
-                return;
-            }
-
-            // Try to load from server
             this.httpClient.get(environment.apiUrl + '/subscription/vapid')
             .subscribe((data: Object) => {
-                localStorage.setItem('vapid', data['pubKey']);
                 resolve(data['pubKey']);
             }, (err: any) => {
                 console.error("Error obtaining public key", err);
