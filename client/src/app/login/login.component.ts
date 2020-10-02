@@ -23,20 +23,19 @@ export class LoginComponent implements OnInit {
     doSetup(form: any) {
         if (form.status === 'VALID') {
           this.loading = true;
-          console.log(form);
           this.authService.login(form.value.username, form.value.password).subscribe(
             data => {
               this.router.navigate(['/']);
             },
             error => {
-              console.log("Error: " + error);
+              console.error("Error: " + error);
               this.error = error;
               this.loading = false;
             }
           );
         }
         else {
-          console.log("Invalid form");
+          console.error("Invalid form");
         }
-        }
+    }
 }
