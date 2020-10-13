@@ -5,7 +5,10 @@ const router = express.Router();
 
 // Include cookie parser
 router.use(cookieParser());
-//router.use(cors());
+
+if (!!process.env.production) {
+    router.use(cors());
+}
 
 // Include all controllers
 router.use('/api/item', require('./item').router);
