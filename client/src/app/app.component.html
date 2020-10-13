@@ -1,10 +1,11 @@
 <div class="wrapper">
-	<app-navbar></app-navbar>
+    <app-navbar></app-navbar>
 
-	<div class="main">
-		<div class="content">
-			<router-outlet></router-outlet>
-		</div>
-		<!-- <app-footer></app-footer> -->
-	</div>
+    <div class="main">
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+        <app-snackbar [(show)]="showSnackbar" [msg]="snackbarMsg" [actionName]="snackbarActionName" (action)="applyUpdate()"></app-snackbar>
+        <!-- <app-footer></app-footer> -->
+    </div>
 </div>
