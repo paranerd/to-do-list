@@ -1,0 +1,38 @@
+#snackbar {
+    visibility: hidden;
+    min-width: 25%;
+    position: fixed;
+    z-index: 1;
+    bottom: 3rem;
+
+    transition: visibility 0.5s linear;
+    -webkit-animation: fadeout 0.5s;
+    animation: fadeout 0.5s;
+}
+
+#snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s;
+    animation: fadein 0.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 3rem; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 3rem; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 3rem; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 3rem; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}

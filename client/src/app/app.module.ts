@@ -20,6 +20,7 @@ import { ErrorInterceptor } from './services/error.interceptor';
 import { LoginComponent } from './login/login.component';
 import { AccessManagementComponent } from './access-management/access-management.component';
 import { DialogComponent } from './dialog/dialog.component';
+import { SnackbarComponent } from './snackbar/snackbar.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { DialogComponent } from './dialog/dialog.component';
     SetupComponent,
     LoginComponent,
     AccessManagementComponent,
-    DialogComponent
+    DialogComponent,
+    SnackbarComponent
   ],
   imports: [
     BrowserModule,
