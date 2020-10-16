@@ -1,0 +1,6 @@
+{
+    "env": {
+        "production": true,
+        "port": 80
+    }
+}
