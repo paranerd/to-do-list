@@ -2,6 +2,11 @@
 This is a self-hosted To-Do-List. See also the [Alexa Companion Skill](https://github.com/paranerd/to-do-list-alexa-skill).
 
 ## Prerequisites
+### Update server config
+Rename server/config/config.sample.json to server/config/config.json
+
+Update the port if you like
+
 ### Set up push notifications
 ```
 npm install -g web-push
@@ -9,8 +14,6 @@ npm install -g web-push
 ```
 web-push generate-vapid-keys
 ```
-
-Rename config/vapid.sample.json to config/vapid.json and enter your VAPID details
 
 ## Run with pm2
 ```
