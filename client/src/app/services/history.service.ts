@@ -8,9 +8,7 @@ import { Item } from '../models/item.model';
 })
 
 export class HistoryService {
-  constructor(private api: ApiService) {
-
-  }
+    constructor(private api: ApiService) {}
 
     /**
      * Create item in localStorage
