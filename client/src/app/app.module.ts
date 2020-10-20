@@ -21,6 +21,8 @@ import { LoginComponent } from './login/login.component';
 import { AccessManagementComponent } from './access-management/access-management.component';
 import { DialogComponent } from './dialog/dialog.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
+import { DonePipe } from './pipes/done.pipe';
+import { UndonePipe } from './pipes/undone.pipe';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,9 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
     LoginComponent,
     AccessManagementComponent,
     DialogComponent,
-    SnackbarComponent
+    SnackbarComponent,
+    DonePipe,
+    UndonePipe
   ],
   imports: [
     BrowserModule,
