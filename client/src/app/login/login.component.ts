@@ -20,7 +20,7 @@ export class LoginComponent implements OnInit {
     
     ngOnInit(): void {}
 
-    doSetup(form: any) {
+    doLogin(form: any) {
         if (form.status === 'VALID') {
           this.loading = true;
           this.authService.login(form.value.username, form.value.password).subscribe(
