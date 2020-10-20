@@ -23,7 +23,7 @@ router.get('/', auth.isAuthenticated(), async (req, res) => {
 /**
  * Create item
  */
-router.post('/',auth.isAuthenticated(), async (req, res) => {
+router.post('/', auth.isAuthenticated(), async (req, res) => {
     try {
         const itemData = req.body;
         const item = await createItem(itemData);
@@ -36,8 +36,8 @@ router.post('/',auth.isAuthenticated(), async (req, res) => {
         res.json(item);
     } catch (err) {
         console.error(err);
-        const status = e.status ? e.status : 500;
-        res.status(status).json({'error': e.message});
+        const status = err.status ? err.status : 500;
+        res.status(status).json({'error': err.message});
     }
 });
 
@@ -54,8 +54,8 @@ router.patch('/', auth.isAuthenticated(), async (req, res) => {
         res.json(item);
     } catch (err) {
         console.error(err);
-        const status = e.status ? e.status : 500;
-        res.status(status).json({'error': e.message});
+        const status = err.status ? err.status : 500;
+        res.status(status).json({'error': err.message});
     }
 });
 
@@ -70,8 +70,8 @@ router.delete('/', auth.isAuthenticated(), async (req, res) => {
         res.json({});
     } catch (err) {
         console.error(err);
-        const status = e.status ? e.status : 500;
-        res.status(status).json({'error': e.message});
+        const status = err.status ? err.status : 500;
+        res.status(status).json({'error': err.message});
 	}
 });
 
@@ -82,20 +82,16 @@ router.delete('/', auth.isAuthenticated(), async (req, res) => {
  * @returns {Item}
  */
 async function createItem(itemData) {
+    itemData.pos = itemData.pos || 0;
     const item = new Item(itemData);
 
-    if (item.pos) {
-        let pos = item.pos;
-        const items = await Item.find({pos: {$gte: item.pos}}).sort({pos: 1});
+    let pos = item.pos;
+    const items = await Item.find({pos: {$gte: item.pos}}).sort({pos: 1});
 
-        for (let item of items) {
-            pos++;
-            item.pos = pos;
-            await item.save();
-        }
-    }
-    else {
-        item.pos = await Item.count();
+    for (let item of items) {
+        pos++;
+        item.pos = pos;
+        await item.save();
     }
 
     await item.save();
