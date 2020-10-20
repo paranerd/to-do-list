@@ -4,8 +4,8 @@
 
     <div class="relative ml-auto">
         <!-- Username -->
-        <button *ngIf="this.auth.isLoggedIn; else elseBlock" class="relative px-4 z-10 block focus:outline-none inline-flex items-center" (click)="menuOpen = !menuOpen">
-            {{this.auth.getCurrentUser().username}}
+        <button *ngIf="auth.isLoggedIn; else elseBlock" class="relative px-4 z-10 block focus:outline-none inline-flex items-center" (click)="menuOpen = !menuOpen">
+            {{auth.getCurrentUser().username}}
             &#x25BE;
         </button>
 
@@ -19,8 +19,8 @@
 
         <!-- Dropdown menu -->
         <div *ngIf="menuOpen" class="absolute right-0 mt-2 w-48 py-2 bg-white rounded-lg text-gray-800 shadow-xl">
-            <a [routerLink]="['/access-management']" class="px-4 py-2 block hover:bg-teal-600 hover:text-white" href="#" *ngIf="this.auth.getCurrentUser().isAdmin" (click)="menuOpen = false">Access Management</a>
-            <a href="#" (click)="logout()" class="px-4 py-2 block hover:bg-teal-600 hover:text-white" (click)="menuOpen = false">Logout</a>
+            <a [routerLink]="['/access-management']" class="px-4 py-2 block hover:bg-teal-600 hover:text-white" href="#" *ngIf="auth.getCurrentUser().isAdmin" (click)="menuOpen = false">Access Management</a>
+            <a href="#" class="px-4 py-2 block hover:bg-teal-600 hover:text-white" (click)="menuOpen = false; logout()">Logout</a>
         </div>
     </div>
 
