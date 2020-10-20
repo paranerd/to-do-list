@@ -70,7 +70,7 @@ export class HomeComponent implements OnInit {
   * @param {string} name
   * @param {number} pos
   */
-  async createItem(name: string, pos: number = null) {
+  async createItem(name: string, pos: number = 0) {
     let item = new Item().deserialize({name, pos});
 
     try {
@@ -81,7 +81,6 @@ export class HomeComponent implements OnInit {
       item = this.history.create(item);
     } finally {
       // Insert new item at pos
-      pos = pos || this.items.length;
       this.items.splice(pos, 0, item);
 
       // Reset positions
