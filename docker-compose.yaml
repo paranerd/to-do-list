@@ -1,0 +1,29 @@
+version: "3"
+services:
+  server:
+    container_name: to-to-list-server
+    restart: always
+    build:
+      context: ./server
+      args:
+        PORT: ${SERVER_PORT}
+    ports:
+      - "${SERVER_PORT}:8081"
+    links:
+      - mongo
+  client:
+    container_name: to-to-list-client
+    restart: always
+    build:
+      context: ./client
+      args:
+        PORT: ${CLIENT_PORT}
+    ports:
+        - "${CLIENT_PORT}:8080"
+  mongo:
+    container_name: mongo
+    image: mongo
+    expose:
+      - "27017"
+    volumes:
+      - ./data:/data/db

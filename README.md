@@ -2,27 +2,42 @@
 This is a self-hosted To-Do-List. See also the [Alexa Companion Skill](https://github.com/paranerd/to-do-list-alexa-skill).
 
 ## Prerequisites
-### Update server config
-Rename server/config/config.sample.json to server/config/config.json
+1. Install MongoDB
+    - Check [this guide](https://docs.mongodb.com/manual/installation/) on how to intall.
 
-Update the port if you like
-
-### Set up push notifications
+## Setup
+### Run with pm2
+1. Install pm2 globally
 ```
-npm install -g web-push
-```
-```
-web-push generate-vapid-keys
+npm i -g pm2
 ```
 
-## Run with pm2
+2. Update server config
+    - Set environment variables in `/server/.env`
+
+3. Update client config
+    - Set environment variables in `/client/.env`
+
+4. Start the app
+    - From within project root run:
 ```
-npm start
+npm start --prefix ./client && npm start --prefix ./server
 ```
 
-## Run with Docker
-[Install Docker Compose](https://docs.docker.com/compose/install/)
+### Run with Docker
+1. [Install Docker](https://docs.docker.com/get-docker/)
 
+2. [Install Docker Compose](https://docs.docker.com/compose/install/)
+
+3. Update ports in the following files:
+    - `docker-compose.yaml`
+    - `server/dockerfile` (look for `EXPOSE`)
+    - `client/dockerfile` (look for `EXPOSE`)
+
+4. Update config
+    - Set environment variables in `/.env`
+
+4. From within project root run:
 ```
 docker-compose build
 ```

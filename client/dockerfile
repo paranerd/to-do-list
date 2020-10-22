@@ -1,7 +1,7 @@
 FROM node:12
 
 # Read port from argument
-ARG PORT=8081
+ARG PORT=8080
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -13,6 +13,9 @@ RUN npm install
 
 # Bundle app source
 COPY . .
+
+# Build Angular
+RUN npm run build
 
 # Map port
 EXPOSE ${PORT}
