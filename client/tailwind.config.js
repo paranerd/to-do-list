@@ -1,17 +1,15 @@
-module.exports = {
-  future: {
-    removeDeprecatedGapUtilities: true,
-    purgeLayersByDefault: true,
-  },
-  purge: [
-    './src/**/*.html',
-    './src/**/*.js',
-  ],
-  theme: {
-    extend: {},
-  },
-  variants: {},
-  plugins: [
-    require('@tailwindcss/custom-forms'),
-  ],
-}
+module.exports = (isProd) => ({
+    prefix: '',
+    future: {
+      removeDeprecatedGapUtilities: true,
+      purgeLayersByDefault: true
+    },
+    purge: {
+      enabled: isProd,
+      content: ['**/*.html', '**/*.ts']
+    },
+    theme: {},
+    plugins: [
+        require('@tailwindcss/custom-forms'),
+    ],
+});
