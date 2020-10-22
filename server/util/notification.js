@@ -1,6 +1,4 @@
 const webpush = require('web-push');
-const fs = require('fs');
-const path = require('path');
 const configHelper = require('./config-helper');
 const Subscription = require('../models/subscription');
 
