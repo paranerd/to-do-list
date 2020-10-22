@@ -6,7 +6,7 @@ const router = express.Router();
 // Include cookie parser
 router.use(cookieParser());
 
-if (!!process.env.production) {
+if (!!process.env.PRODUCTION) {
     router.use(cors());
 }
 

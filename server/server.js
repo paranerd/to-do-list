@@ -1,18 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./config/database');
-const configHelper = require('./util/config-helper');
+require('dotenv').config()
 
 const app = express();
-const config = new configHelper();
-
-// Load environment variables
-const env = config.get('env');
-for (let e in env) {
-    process.env[e] = env[e];
-}
-
-const port = process.env.port || 80;
+const port = process.env.PORT || 8081;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));

@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const port = 8084;
 const router = express.Router();
+require('dotenv').config()
+
+const port = process.env.PORT || 8080;
 
 router.get('*', function(req, res) {
 	res.sendFile('index.html', { root: __dirname + '/dist/to-do' });
@@ -16,6 +18,5 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
 app.use('/', router);
 
-app.listen(port, function() {
-	console.log("Listening on port: " + port);
-});
+// Start server
+app.listen(port, () => console.log(`Listening on port ${port}`));
