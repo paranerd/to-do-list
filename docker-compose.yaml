@@ -1,8 +1,9 @@
 version: "3"
 services:
   server:
-    container_name: to-to-list-server
-    restart: always
+    image: to-do-list-server
+    container_name: to-do-list-server
+    restart: unless-stopped
     build:
       context: ./server
       args:
@@ -12,8 +13,9 @@ services:
     links:
       - mongo
   client:
-    container_name: to-to-list-client
-    restart: always
+    image: to-do-list-client
+    container_name: to-do-list-client
+    restart: unless-stopped
     build:
       context: ./client
       args:
@@ -22,6 +24,7 @@ services:
         - "${CLIENT_PORT}:8080"
   mongo:
     container_name: mongo
+    restart: unless-stopped
     image: mongo
     expose:
       - "27017"
