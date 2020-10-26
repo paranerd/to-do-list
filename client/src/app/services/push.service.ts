@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { SwPush } from '@angular/service-worker';
 
+import { AuthService } from '@app/services/auth.service';
+
 import { environment } from '@environments/environment';
 
 @Injectable({
@@ -11,12 +13,17 @@ import { environment } from '@environments/environment';
 export class PushService {
     notificationPermission: NotificationPermission | null = null;
 
-    constructor(private httpClient: HttpClient, private swPush: SwPush) { }
+    constructor(private httpClient: HttpClient, private swPush: SwPush, public auth: AuthService) { }
 
     /**
      * Set up subscriptions
      */
     async init() {
+        // Check if logged in
+        if (!this.auth.getCurrentUser()) {
+            return;
+        }
+
         // Check if already subscribed
         if (localStorage.getItem('subscribed')) {
             return;
