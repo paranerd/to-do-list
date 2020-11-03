@@ -33,9 +33,9 @@ npm start --prefix ./client && npm start --prefix ./server
 
 4. From within project root run:
 ```
-docker-compose build
+sudo docker-compose build
 ```
 
 ```
-docker-compose up -d
+sudo docker-compose up -d
 ```
