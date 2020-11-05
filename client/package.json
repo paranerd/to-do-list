@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "pm2 start server.js --name todo-client --exp-backoff-restart-delay 5",
+    "update": "ng build --prod && pm2 restart todo-client",
     "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
