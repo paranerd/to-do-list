@@ -10,7 +10,7 @@ services:
         PORT: ${SERVER_PORT}
     ports:
       - "${SERVER_PORT}:8081"
-    links:
+    depends_on:
       - mongo
   client:
     image: to-do-list-client
@@ -21,12 +21,13 @@ services:
       args:
         PORT: ${CLIENT_PORT}
     ports:
-        - "${CLIENT_PORT}:8080"
+      - "${CLIENT_PORT}:8080"
   mongo:
     container_name: mongo
     restart: unless-stopped
     image: mongo
-    expose:
-      - "27017"
     volumes:
-      - ./data:/data/db
+      - to-do-list-data:/data/db
+
+volumes:
+  to-do-list-data:
