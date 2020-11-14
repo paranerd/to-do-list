@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { PushService } from '@app/services/push.service';
-import { SwUpdate } from '@angular/service-worker';
+import { UpdateService } from '@app/services/update.service';
 
 @Component({
     selector: 'app-root',
@@ -11,24 +11,18 @@ import { SwUpdate } from '@angular/service-worker';
 export class AppComponent implements OnInit {
     title: string = 'To-Do List';
     showSnackbar: boolean = false;
-    snackbarActionName: string = "";
-    snackbarMsg: string = "";
+    snackbarActionName: string = "Apply";
+    snackbarMsg: string = "Update available!";
 
-    constructor(private push: PushService, private swUpdate: SwUpdate) {
+    constructor(private push: PushService, public update: UpdateService) {
         push.init();
 
-        this.swUpdate.available.subscribe(e => {
+        this.update.available.subscribe(available => {
             // Show snackbar
-            this.snackbarMsg = "Update available!";
-            this.snackbarActionName = "Apply";
-            this.showSnackbar = true;
+            this.showSnackbar = available;
         });
     }
 
     ngOnInit(): void {
-    }
-
-    applyUpdate() {
-        this.swUpdate.activateUpdate().then(() => document.location.reload());
     }
 }

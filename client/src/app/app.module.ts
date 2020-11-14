@@ -10,6 +10,8 @@ import { HomeComponent } from './home/home.component';
 import { ApiService } from './services/api.service';
 import { HistoryService } from './services/history.service';
 import { AuthService } from './services/auth.service';
+import { UpdateService } from './services/update.service';
+
 import { NavbarComponent } from './navbar/navbar.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
@@ -48,6 +50,7 @@ import { UndonePipe } from './pipes/undone.pipe';
     ApiService,
     HistoryService,
     AuthService,
+    UpdateService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
