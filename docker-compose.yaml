@@ -11,7 +11,7 @@ services:
     ports:
       - "${SERVER_PORT}:8081"
     depends_on:
-      - to-do-list-db
+      - db
     volumes:
       - ./server/config:/config
   client:
