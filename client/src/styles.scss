@@ -17,6 +17,12 @@ body {
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+button:disabled {
+    cursor: not-allowed;
+    pointer-events: all !important;
+    opacity: 0.5;
+}
+
 .tooltip {
     position: relative;
 
