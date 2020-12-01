@@ -11,7 +11,9 @@ services:
     ports:
       - "${SERVER_PORT}:8081"
     depends_on:
-      - mongo
+      - to-do-list-db
+    volumes:
+      - ./server/config:/config
   client:
     image: to-do-list-client
     container_name: to-do-list-client
@@ -22,8 +24,8 @@ services:
         PORT: ${CLIENT_PORT}
     ports:
       - "${CLIENT_PORT}:8080"
-  mongo:
-    container_name: mongo
+  db:
+    container_name: to-do-list-db
     restart: unless-stopped
     image: mongo
     volumes:
