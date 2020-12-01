@@ -24,7 +24,6 @@ UserSchema.pre('save', function() {
  * @returns {string}
  */
 UserSchema.statics.hashPassword = async function(password) {
-	console.log(password, saltRounds);
 	return await bcrypt.hash(password, saltRounds);
 }
 
