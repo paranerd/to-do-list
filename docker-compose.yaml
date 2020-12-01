@@ -13,7 +13,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./server/config:/config
+      - ./server/config:/usr/src/app/config
   client:
     image: to-do-list-client
     container_name: to-do-list-client
