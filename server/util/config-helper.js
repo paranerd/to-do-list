@@ -38,6 +38,9 @@ class ConfigHelper {
      * @returns {any}
      */
     get(keys, def = null) {
+        // Refresh config
+        this.config = this.load();
+
         // Convert keys to array if not already
         keys = Array.isArray(keys) ? keys : [keys];
 
@@ -74,6 +77,9 @@ class ConfigHelper {
      * @param {mixed} value 
      */
     set(keys, value) {
+        // Refresh config
+        this.config = this.load();
+
         // Convert keys to array if not already
         keys = Array.isArray(keys) ? keys : [keys];
 
