@@ -20,7 +20,7 @@ export class ErrorInterceptor implements HttpInterceptor {
                 this.router.navigate(['/login']);
             }
 
-            const error = err.error.msg || err.statusText;
+            const error = err.error?.msg || err.statusText;
             return throwError(error);
         }))
     }
