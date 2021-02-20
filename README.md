@@ -17,12 +17,21 @@ npm i -g pm2
 4. Update client config
     - Set environment variables in `/client/.env`
 
-5. Build the client
+5. Install dependencies
+```
+npm --prefix ./client i
+```
+
+```
+npm --prefix ./server i
+```
+
+6. Build the client
 ```
 npm run-script --prefix ./client build
 ```
 
-6. Start the app
+7. Start the app
     - From within project root run:
 ```
 npm start --prefix ./client && npm start --prefix ./server
@@ -64,3 +73,8 @@ This rebuilds the client and then restarts the service in PM2
 ```
 sudo docker-compose down && sudo docker-compose build && sudo docker-compose up -d
 ```
+
+## First start
+Go to `[to-do-list-url]/setup` to create the admin user.
+
+After creating you will automatically be logged in.
