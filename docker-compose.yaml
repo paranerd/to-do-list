@@ -1,29 +1,15 @@
 version: "3"
 services:
   server:
-    image: to-do-list-server
-    container_name: to-do-list-server
+    image: paranerd/to-do-list
+    container_name: to-do-list
     restart: unless-stopped
-    build:
-      context: ./server
-      args:
-        PORT: ${SERVER_PORT}
-    ports:
-      - "${SERVER_PORT}:8081"
     depends_on:
       - mongo
     volumes:
-      - ./server/config:/usr/src/app/config
-  client:
-    image: to-do-list-client
-    container_name: to-do-list-client
-    restart: unless-stopped
-    build:
-      context: ./client
-      args:
-        PORT: ${CLIENT_PORT}
+      - /path/to/config:/app/config
     ports:
-      - "${CLIENT_PORT}:8080"
+      - 10111:8080
   mongo:
     container_name: to-do-list-db
     restart: unless-stopped

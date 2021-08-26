@@ -24,6 +24,12 @@ class ConfigHelper {
         // Create if not
         else {
             const config = {};
+
+            // Create config folder if not exists
+            if (!fs.existsSync(this.location)) {
+                fs.mkdirSync(this.location, { recursive: true });
+            }
+
             fs.writeFileSync(this.location, JSON.stringify(config, null, 4));
 
             return config;
