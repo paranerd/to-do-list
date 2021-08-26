@@ -27,7 +27,6 @@ class ConfigHelper {
 
             // Create config folder if not exists
             if (!fs.existsSync(this.location)) {
-                console.log('creating config folder', path.normalize(this.location + '/../'));
                 fs.mkdirSync(path.normalize(this.location + '/../'), { recursive: true });
             }
 
