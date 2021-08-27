@@ -13,7 +13,7 @@ services:
   mongo:
     container_name: to-do-list-db
     restart: unless-stopped
-    image: mongo
+    image: mongo:4.4.8
     volumes:
       - to-do-list-data:/data/db
 
