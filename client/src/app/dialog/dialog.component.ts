@@ -15,16 +15,21 @@ export class DialogComponent implements OnInit {
     @Input() error: string = "";
     @Input() success: string = "";
     @Input() actionName: string = "Send";
+    @Input() autoHide: boolean = false;
     @Output() showChange = new EventEmitter<boolean>();
     @Output() action = new EventEmitter<Object>();
     copyTooltipText: string = "Copy";
 
-    constructor(private util: UtilService) {}
+    constructor(private util: UtilService) { }
 
-    ngOnInit(): void {}
+    ngOnInit(): void { }
 
     onSubmit(form: any) {
         this.action.emit(form.value);
+
+        if (this.autoHide) {
+            this.hide();
+        }
     }
 
     hide() {
@@ -32,7 +37,7 @@ export class DialogComponent implements OnInit {
         this.showChange.emit(this.show);
     }
 
-    copyText(val: string){
+    copyText(val: string) {
         let selBox = document.createElement('textarea');
         selBox.style.position = 'fixed';
         selBox.style.left = '0';
@@ -48,7 +53,7 @@ export class DialogComponent implements OnInit {
         this.copyTooltipText = "Copied!";
 
         setTimeout(() => {
-          this.copyTooltipText = "Copy";
+            this.copyTooltipText = "Copy";
         }, 5000);
     }
 }
