@@ -1,11 +1,11 @@
 {
     "name": "to-do-list",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "nodemon -e html,css,js index.js",
-        "start": "pm2 start index.js --name todo-server"
+        "start": "node index.js",
+        "dev": "nodemon -e html,css,js index.js"
     },
     "author": "paranerd",
     "license": "ISC",
