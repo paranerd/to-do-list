@@ -1,12 +1,12 @@
 # Build Angular client
-FROM node:12 AS ui-build
+FROM node:16.14-alpine AS ui-build
 WORKDIR /app
 COPY client/ ./
 RUN npm install
 RUN npm run build
 
 # Build server and move Angular to /dist
-FROM node:12 AS server-build
+FROM node:16.14-alpine AS server-build
 WORKDIR /app
 COPY --from=ui-build /app/dist/to-do ./dist
 COPY server/ ./
