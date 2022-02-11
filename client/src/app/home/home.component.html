@@ -1,10 +1,12 @@
 <div class="flex flex-col justify-center items-center w-11/12 md:w-8/12 xl:w-6/12 mx-auto mt-4 md:mt-8">
     <!-- Add item -->
     <form #create="ngForm" (ngSubmit)="createItem(create.value.name); create.reset()"
-        class="w-full flex items-center rounded shadow-md py-2 px-3 border-gray-400 border border-solid">
+        class="w-full flex items-center rounded shadow-md py-2 px-3 border-gray-300 border border-solid">
         <input name="name" ngModel #name
             class="h-12 appearance-none w-full text-gray-700 leading-tight focus:outline-none text-base border-b border-white focus:border-teal-600"
             placeholder="Add item" autocomplete="off" />
+
+        <!-- Plus button -->
         <button
             class="ml-4 flex-shrink-0 bg-teal-600 hover:bg-teal-700 border-teal-600 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded"
             type="submit">
@@ -15,8 +17,8 @@
             </svg>
         </button>
 
-        <!-- Actions -->
-        <span class="relative dropdown" style="color: #9CA3AF;">
+        <!-- Actions "..." button -->
+        <span class="dropdown" style="color: #9CA3AF;">
             <button
                 class="focus:outline-none block ml-4 flex-shrink-0 hover:bg-teal-700 hover:text-white text-sm text-gray-500 py-1 px-1 rounded"
                 type="button" (click)="actionsOpen = !actionsOpen">
@@ -45,7 +47,7 @@
         <!-- Undone items -->
         <div class="item w-full flex items-center px-2 py-2 mt-6 text-gray-800" *ngFor="let item of items | undone">
             <input type="checkbox"
-                class="form-checkbox rounded text-teal-600 w-6 h-6 border-2 border-gray-400 cursor-pointer" #status
+                class="accent-gray-600 rounded bg-red-100 text-teal-600 w-6 h-6 border-2 border-gray-400 cursor-pointer" #status
                 [checked]="item.done" (change)="updateItem(item, {done: status.checked})" />
             <span #create class="item-name w-full ml-3 text-base select-text outline-none" contenteditable="true"
                 (paste)="onPaste(item, $event)" (keydown)="onKeydown(item, $event)"
@@ -65,7 +67,7 @@
         <div class="item w-full flex items-center px-2 py-2 mt-6 text-gray-500 line-through"
             *ngFor="let item of items | done">
             <input type="checkbox"
-                class="form-checkbox rounded text-teal-600 w-6 h-6 border-2 border-gray-400 cursor-pointer" #status
+                class="rounded accent-teal-600 w-6 h-6 border-2 border-blue-400 cursor-pointer" #status
                 [checked]="item.done" (change)="updateItem(item, {done: status.checked})" />
             <span #create class="item-name w-full ml-3 text-base select-text outline-none" contenteditable="true"
                 (paste)="onPaste(item, $event)" (keydown)="onKeydown(item, $event)"

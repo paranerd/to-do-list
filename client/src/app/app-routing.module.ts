@@ -24,7 +24,7 @@ const routes: Routes = [
     {
         path: 'access-management',
         component: AccessManagementComponent,
-        data: { 
+        data: {
             role: 'admin'
         }
     }

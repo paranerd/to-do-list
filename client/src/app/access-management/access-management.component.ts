@@ -17,8 +17,8 @@ export class AccessManagementComponent implements OnInit {
     modalTitle: string = 'Create Service Token';
     modalActionName: string = 'Create';
     modalFields: Array<string> = ['name'];
-    modalSuccess: string;
-    modalError: string;
+    modalSuccess: string = '';
+    modalError: string = '';
 
     @HostListener('document:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent) {
@@ -40,12 +40,12 @@ export class AccessManagementComponent implements OnInit {
     async createToken(name: string) {
         try {
             const token = await this.api.createServiceToken(name);
-            this.modalSuccess = token.token;
+            this.modalSuccess = <string>token.token;
 
             this.loadTokens();
       } catch (err) {
           console.log("Error creating token", err);
-          this.modalError = err;
+          this.modalError = <string>err;
       }
     }
 

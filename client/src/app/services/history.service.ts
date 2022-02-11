@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { ApiService } from '../services/api.service';
+import { ApiService } from './api.service';
 import { Item } from '../models/item.model';
 
 @Injectable({
@@ -14,14 +14,14 @@ export class HistoryService {
      * Create item in localStorage
      * @param {Item} item
      */
-    create(item: Item) {  
+    create(item: Item) {
       item.action = 'create';
 
       // Update history
       let history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
       history.unshift(item);
       localStorage.setItem('history', JSON.stringify(history));
-  
+
       return item;
   }
 
@@ -101,7 +101,7 @@ export class HistoryService {
 
   rebuild(items: Array<Item>) {
       const history = localStorage.getItem('history') ? JSON.parse(localStorage.getItem('history')) : [];
-  
+
       for (let i = history.length - 1; i >= 0; i--) {
           const item = history[i];
 
@@ -115,15 +115,15 @@ export class HistoryService {
                       // Insert new item at the end
                       items.push(item);
                   }
-  
+
                   break;
-  
+
               case 'update':
                   // Update items array
                   for (let i = 0; i < items.length; i++) {
                       if (items[i].id === item.id) {
                           delete item.action;
-  
+
                           if (item.pos != items[i].pos) {
                               // We can't use the old pos as reference for splicing
                               // as it doesn't get updated on create/delete (only on server)
@@ -133,13 +133,13 @@ export class HistoryService {
                           else {
                               items[i] = item;
                           }
-  
+
                           break;
                       }
                   }
-  
+
                   break;
-  
+
               case 'delete':
                   // Update items array
                   for (let i = 0; i < items.length; i++) {
@@ -148,11 +148,11 @@ export class HistoryService {
                           break;
                       }
                   }
-  
+
                   break;
           }
       }
-  
+
       return items;
   }
 }

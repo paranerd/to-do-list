@@ -1,15 +1,9 @@
-module.exports = (isProd) => ({
-    prefix: '',
-    future: {
-        removeDeprecatedGapUtilities: true,
-        purgeLayersByDefault: true
-    },
-    purge: {
-        enabled: isProd,
-        content: ['**/*.html', '**/*.ts']
-    },
-    theme: {},
-    plugins: [
-        require('@tailwindcss/custom-forms'),
-    ],
-});
+module.exports = {
+  content: [
+    './src/**/*.{js,jsx,ts,tsx,vue}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
