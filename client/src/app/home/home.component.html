@@ -17,29 +17,30 @@
             </svg>
         </button>
 
-        <!-- Actions "..." button -->
-        <span class="dropdown" style="color: #9CA3AF;">
-            <button
-                class="focus:outline-none block ml-4 flex-shrink-0 hover:bg-teal-700 hover:text-white text-sm text-gray-500 py-1 px-1 rounded"
-                type="button" (click)="actionsOpen = !actionsOpen">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                </svg>
-            </button>
+        <!-- Action menu -->
+        <div class="dropdown">
+          <!-- Action menu button -->
+          <button
+              class="focus:outline-none block ml-4 flex-shrink-0 hover:bg-teal-700 hover:text-white text-sm text-gray-500 py-1 px-1 rounded"
+              type="button" (click)="actionsOpen = !actionsOpen">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+              </svg>
+          </button>
 
-            <!-- Dropdown overlay -->
-            <button *ngIf="actionsOpen" (click)="actionsOpen = false" tabindex="-1"
-                class="fixed inset-0 h-full w-full cursor-default"></button>
+          <!-- Action menu dropdown -->
+          <div *ngIf="actionsOpen" class="dropdown-menu">
+            <!-- Backdrop -->
+            <button tabindex="-1" class="dropdown-backdrop" (click)="actionsOpen = false"></button>
 
             <!-- Dropdown menu -->
-            <div *ngIf="actionsOpen"
-                class="dropdown-content absolute right-0 w-48 py-2 bg-white rounded-lg text-gray-800 shadow-xl cursor-pointer">
-                <span class="px-4 py-2 block hover:bg-teal-600 hover:text-white"
-                    (click)="actionsOpen = false; deleteDone();">Remove check items</span>
+            <div class="dropdown-content">
+              <div class="dropdown-item" (click)="actionsOpen = false; deleteDone();">Remove checked</div>
             </div>
-        </span>
+          </div>
+        </div>
     </form>
 
     <!-- Items -->
@@ -47,7 +48,7 @@
         <!-- Undone items -->
         <div class="item w-full flex items-center px-2 py-2 mt-6 text-gray-800" *ngFor="let item of items | undone">
             <input type="checkbox"
-                class="accent-gray-600 rounded bg-red-100 text-teal-600 w-6 h-6 border-2 border-gray-400 cursor-pointer" #status
+                class="checkbox" #status
                 [checked]="item.done" (change)="updateItem(item, {done: status.checked})" />
             <span #create class="item-name w-full ml-3 text-base select-text outline-none" contenteditable="true"
                 (paste)="onPaste(item, $event)" (keydown)="onKeydown(item, $event)"
@@ -67,7 +68,7 @@
         <div class="item w-full flex items-center px-2 py-2 mt-6 text-gray-500 line-through"
             *ngFor="let item of items | done">
             <input type="checkbox"
-                class="rounded accent-teal-600 w-6 h-6 border-2 border-blue-400 cursor-pointer" #status
+                class="checkbox" #status
                 [checked]="item.done" (change)="updateItem(item, {done: status.checked})" />
             <span #create class="item-name w-full ml-3 text-base select-text outline-none" contenteditable="true"
                 (paste)="onPaste(item, $event)" (keydown)="onKeydown(item, $event)"

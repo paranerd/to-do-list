@@ -3,25 +3,31 @@
     <a [routerLink]="['/']" class="ml-2 font-semibold text-xl tracking-tight">To-Do-List</a>
 
     <div class="relative ml-auto">
+      <!-- User menu -->
+      <div class="dropdown" *ngIf="auth.isLoggedIn; else elseBlock">
         <!-- Username -->
-        <button *ngIf="auth.isLoggedIn; else elseBlock" class="relative px-4 z-10 block focus:outline-none inline-flex items-center" (click)="menuOpen = !menuOpen">
-            {{auth.getCurrentUser().username}}
+        <button class="relative px-4 z-10 block focus:outline-none inline-flex items-center" (click)="menuOpen = !menuOpen">
+            {{ auth.getCurrentUser().username }}
             &#x25BE;
         </button>
 
-        <!-- Login button -->
-        <ng-template #elseBlock>
-            <a [routerLink]="['/login']" class="ml-auto inline-block text-sm px-4 py-2 leading-none border rounded border-white hover:border-transparent hover:text-teal-600 hover:bg-white"><strong>Login</strong></a>
-        </ng-template>
+        <!-- User menu dropdown -->
+        <div *ngIf="menuOpen" class="dropdown-menu">
+          <!-- Backdrop -->
+          <button tabindex="-1" class="dropdown-backdrop" (click)="menuOpen = false"></button>
 
-        <!-- Dropdown overlay -->
-        <button *ngIf="menuOpen" (click)="menuOpen = false" tabindex="-1" class="fixed inset-0 h-full w-full cursor-default"></button>
-
-        <!-- Dropdown menu -->
-        <div *ngIf="menuOpen" class="absolute right-0 mt-2 w-48 py-2 bg-white rounded-lg text-gray-800 shadow-xl">
-            <a [routerLink]="['/access-management']" class="px-4 py-2 block hover:bg-teal-600 hover:text-white" href="#" *ngIf="auth.getCurrentUser().isAdmin" (click)="menuOpen = false">Access Management</a>
-            <a href="#" class="px-4 py-2 block hover:bg-teal-600 hover:text-white" (click)="menuOpen = false; logout()">Logout</a>
+          <!-- Dropdown menu -->
+          <div class="dropdown-content">
+            <a class="dropdown-item" [routerLink]="['/access-management']" href="#" *ngIf="auth.getCurrentUser().isAdmin" (click)="menuOpen = false">Access Management</a>
+            <a class="dropdown-item" href="#" (click)="menuOpen = false; logout()">Logout</a>
+          </div>
         </div>
+      </div>
+
+      <!-- Login button -->
+      <ng-template #elseBlock>
+        <a [routerLink]="['/login']" class="ml-auto inline-block text-sm px-4 py-2 leading-none border rounded border-white hover:border-transparent hover:text-teal-600 hover:bg-white"><strong>Login</strong></a>
+      </ng-template>
     </div>
 
     <!-- Offline tooltip -->

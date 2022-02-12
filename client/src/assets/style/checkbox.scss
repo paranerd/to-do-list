@@ -1,0 +1,72 @@
+$accent-color-dark: rgb(15 118 110);
+
+.checkbox {
+  appearance: none;
+  color-adjust: exact;
+  display: inline-block;
+  vertical-align: middle;
+  background-origin: border-box;
+  user-select: none;
+  flex-shrink: 0;
+  height: 24px;
+  width: 24px;
+  color: rgb(37 99 235);
+  background-color: white;
+  border-color: rgb(209 213 219);
+  border-width: 1px;
+  border-radius: 0.25rem;
+  cursor: pointer;
+
+  &:hover {
+    background: $accent-color;
+  }
+
+  &:focus {
+    outline: none;
+    background: $accent-color-dark;
+    //'--ring-offset-shadow': `0 0 0 var(--ring-offset-width, 2px) var(--ring-offset-color, #fff)`;
+    /*'--ring-shadow': `0 0 0 calc(2px + var(--ring-offset-width, 2px)) var(--ring-color, ${theme(
+      'colors.blue.600',
+      colors.blue[600]
+    )})`,*/
+    //'box-shadow': [`var(--ring-offset-shadow)`, `var(--ring-shadow)`, `var(--box-shadow, 0 0 #0000)`].join(', ');
+  }
+
+  &:checked {
+    border-color: transparent;
+    background-color: $accent-color;
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url('data:image/svg+xml,<svg viewBox="0 0 16 16" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z"/></svg>');
+  }
+
+  &:checked:hover {
+    border-color: transparent;
+    background-color: $accent-color;
+  }
+
+  &:checked:focus {
+    border-color: transparent;
+    background-color: $accent-color;
+  }
+
+  &:indeterminate {
+    border-color: transparent;
+    background-color: $accent-color;
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h8"/></svg>');
+  }
+
+  &:indeterminate:hover {
+    border-color: transparent;
+    background-color: $accent-color;
+  }
+
+  &:indeterminate:focus {
+    border-color: transparent;
+    background-color: $accent-color;
+  }
+}
