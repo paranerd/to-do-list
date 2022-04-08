@@ -8,32 +8,27 @@ import { fromEvent, merge, Observable, Observer } from 'rxjs';
 export class UtilService {
   constructor() {}
 
+  /**
+   * Convert timestamp to datestring.
+   *
+   * @param {number} ts
+   * @returns {string}
+   */
   public timestampToDate(ts: number) {
     const date = new Date(ts);
     const year = date.getFullYear();
-    const month = '0' + (date.getMonth() + 1);
-    const day = '0' + date.getDate();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+    const day = ('0' + date.getDate()).slice(-2);
     const hours = date.getHours();
-    const minutes = '0' + date.getMinutes();
-    const seconds = '0' + date.getSeconds();
+    const minutes = ('0' + date.getMinutes()).slice(-2);
+    const seconds = ('0' + date.getSeconds()).slice(-2);
 
-    return (
-      day.substr(-2) +
-      '.' +
-      month.substr(-2) +
-      '.' +
-      year +
-      ' - ' +
-      hours +
-      ':' +
-      minutes.substr(-2) +
-      ':' +
-      seconds.substr(-2)
-    );
+    return `${year}-${month}-${day}_${hours}:${minutes}:${seconds}`;
   }
 
   /**
-   * Capitalize string
+   * Capitalize string.
+   *
    * @param {string} str
    * @returns {string}
    */
@@ -41,6 +36,11 @@ export class UtilService {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
+  /**
+   * Returns connection status.
+   *
+   * @returns {boolean}
+   */
   public connectionStatus() {
     return merge(
       fromEvent(window, 'online').pipe(map(() => true)),
