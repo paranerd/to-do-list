@@ -1,11 +1,16 @@
 <div class="wrapper">
-    <app-navbar></app-navbar>
+  <app-navbar></app-navbar>
 
-    <div class="main">
-        <div class="content">
-            <router-outlet></router-outlet>
-        </div>
-        <app-snackbar [(show)]="showSnackbar" [msg]="snackbarMsg" [actionName]="snackbarActionName" (action)="update.apply()"></app-snackbar>
-        <!-- <app-footer></app-footer> -->
+  <div class="main">
+    <div class="content">
+      <router-outlet></router-outlet>
     </div>
+    <app-snackbar
+      [(show)]="showSnackbar"
+      [msg]="snackbarMsg"
+      [actionName]="snackbarActionName"
+      (action)="update.apply()"
+    ></app-snackbar>
+    <!-- <app-footer></app-footer> -->
+  </div>
 </div>

@@ -1,0 +1,145 @@
+<div class="wrapper">
+  <!-- Login Form -->
+  <form
+    class="login-form col-12 col-s-8 col-m-6 col-l-5 col-xl-3"
+    #login="ngForm"
+    (ngSubmit)="doLogin(login)"
+    action="#"
+    method="post"
+    [style.display]="waitForTfa ? 'none' : 'block'"
+  >
+    <h1 class="title">Login</h1>
+    <!-- Username -->
+    <div class="input-group">
+      <label class="input-label" for="username">Username</label>
+      <div class="input-container">
+        <input
+          class="login-input"
+          #username="ngModel"
+          ngModel
+          name="username"
+          type="text"
+          placeholder="Username"
+          autocomplete="off"
+          required
+          autofocus
+        />
+        <span class="focus-border"></span>
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="input-group">
+      <label class="input-label" for="password">Password</label>
+      <div class="input-container">
+        <input
+          class="login-input"
+          #password="ngModel"
+          ngModel
+          name="password"
+          type="password"
+          placeholder="******************"
+          required
+        />
+        <span class="focus-border"></span>
+      </div>
+    </div>
+
+    <!-- Login button -->
+    <button class="button login-button" type="submit" [disabled]="loading">
+      <!-- Spinner -->
+      <svg
+        *ngIf="loading"
+        class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      Login
+    </button>
+
+    <!-- Error -->
+    <div
+      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4 text-center"
+      role="alert"
+      *ngIf="error"
+    >
+      <span class="block sm:inline">{{ error }}</span>
+    </div>
+  </form>
+
+  <!-- Two-Factor Authentication Form -->
+  <form
+    class="login-form col-12 col-s-8 col-m-6 col-l-5 col-xl-3"
+    #tfa="ngForm"
+    (ngSubmit)="doLogin(login)"
+    action="#"
+    method="post"
+    [style.display]="waitForTfa ? 'block' : 'none'"
+  >
+    <h1 class="title">Two-Factor</h1>
+    <div class="mb-4">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="username"
+        >Authentication code</label
+      >
+      <input
+        #tfa="ngModel"
+        ngModel
+        name="tfa"
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none border focus:border-teal-500"
+        type="text"
+        placeholder="6-digit code"
+        required
+        autofocus
+      />
+    </div>
+    <button class="button login-button" type="submit" [disabled]="loading">
+      <!-- Spinner -->
+      <svg
+        *ngIf="loading"
+        class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      Verify
+    </button>
+
+    <!-- Error -->
+    <div
+      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4 text-center"
+      role="alert"
+      *ngIf="error"
+    >
+      <span class="block sm:inline">{{ error }}</span>
+    </div>
+  </form>
+</div>

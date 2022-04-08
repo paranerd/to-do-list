@@ -1,22 +1,24 @@
 const mongoose = require('mongoose');
 
-let SubscriptionSchema = new mongoose.Schema({
-    endpoint: String,
-    expirationTime: String,
-    keys: {
-        p256dh: String,
-        auth: String
-    }
+let Subscription;
+
+const SubscriptionSchema = new mongoose.Schema({
+  endpoint: String,
+  expirationTime: String,
+  keys: {
+    p256dh: String,
+    auth: String,
+  },
 });
 
 SubscriptionSchema.statics.findOneOrCreate = async (query, data) => {
-    data = (data) ? data : query;
+  const actualData = data || query;
 
-	const subscription = await Subscription.findOne(query);
+  const subscription = await Subscription.findOne(query);
 
-	return subscription || await new Subscription(data).save();
-}
+  return subscription || new Subscription(actualData).save();
+};
 
 // Create a model from the schema and make it publicly available
-const Subscription = mongoose.model('Subscription', SubscriptionSchema);
+Subscription = mongoose.model('Subscription', SubscriptionSchema);
 module.exports = Subscription;

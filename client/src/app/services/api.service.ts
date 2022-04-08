@@ -5,90 +5,67 @@ import { Item } from '../models/item.model';
 import { ServiceToken } from '../models/service-token.model';
 
 import { environment } from '../../environments/environment';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
   constructor(private httpClient: HttpClient) {}
 
-  public getItems(params: any): Promise<Array<Item>> {
-    return new Promise((resolve, reject) => {
-      this.httpClient.get(environment.apiUrl + '/item', {params: params})
-      .subscribe((data: Array<Item>) => {
-        data = data.map((itemData: any) => new Item().deserialize(itemData));
-        resolve(data);
-      }, (error: any) => {
-        reject(error);
-      });
+  public getItems(params: any): Observable<Array<Item>> {
+    return this.httpClient
+      .get(`${environment.apiUrl}/item`, { params: params })
+      .pipe(
+        map((data: Array<Item>) => {
+          return data.map((itemData: any) => new Item().deserialize(itemData));
+        })
+      );
+  }
+
+  public createItem(item: Item): Observable<Item> {
+    return this.httpClient.post(`${environment.apiUrl}/item`, item).pipe(
+      map((data: Item) => {
+        return new Item().deserialize(data);
+      })
+    );
+  }
+
+  public updateItem(item: Item): Observable<Item> {
+    return this.httpClient.patch(`${environment.apiUrl}/item`, item).pipe(
+      map((data: Item) => {
+        return new Item().deserialize(data);
+      })
+    );
+  }
+
+  public deleteItem(item: Item): Observable<Object> {
+    return this.httpClient.request('delete', `${environment.apiUrl}/item`, {
+      body: item,
     });
   }
 
-  public createItem(item: Item): Promise<Item> {
-    return new Promise((resolve, reject) => {
-      this.httpClient.post(environment.apiUrl + '/item', item)
-      .subscribe((data: Item) => {
-        resolve(data);
-      }, (error: any) => {
-        reject(error);
-      });
-    });
+  createServiceToken(name: string): Observable<ServiceToken> {
+    return this.httpClient
+      .post(`${environment.apiUrl}/service-token`, { name })
+      .pipe(
+        map((data: ServiceToken) => {
+          return new ServiceToken().deserialize(data);
+        })
+      );
   }
 
-  public updateItem(item: Item): Promise<Item> {
-    return new Promise((resolve, reject) => {
-      this.httpClient.patch(environment.apiUrl + '/item', item)
-      .subscribe((data: Item) => {
-        resolve(data);
-      }, (error: any) => {
-        reject(error);
-      });
-    });
+  loadServiceTokens(): Observable<Array<ServiceToken>> {
+    return this.httpClient.get(`${environment.apiUrl}/service-token`).pipe(
+      map((data: Array<ServiceToken>) => {
+        return data.map((tokenData: any) =>
+          new ServiceToken().deserialize(tokenData)
+        );
+      })
+    );
   }
 
-  public deleteItem(item: Item): Promise<Object> {
-    const httpParams = new HttpParams({fromObject: {test: 'ting'}});
-    return new Promise((resolve, reject) => {
-      this.httpClient.request('delete', environment.apiUrl + '/item', {body: item})
-      .subscribe(data => {
-        resolve(data);
-      }, (error: any) => {
-        reject(error);
-      });
-    });
-  }
-
-  createServiceToken(name: string): Promise<ServiceToken> {
-    return new Promise((resolve, reject) => {
-      this.httpClient.post(environment.apiUrl + '/service-token', {name})
-      .subscribe((data: ServiceToken) => {
-          resolve(data);
-      }, (error: any) => {
-          reject(error);
-      });
-    });
-  }
-
-  loadServiceTokens(): Promise<Array<ServiceToken>> {
-    return new Promise((resolve, reject) => {
-        this.httpClient.get(environment.apiUrl + '/service-token')
-        .subscribe((data: Array<ServiceToken>) => {
-            data = data.map((itemData: any) => new ServiceToken().deserialize(itemData));
-            resolve(data);
-        }, (error: any) => {
-            reject(error);
-        });
-    });
-  }
-
-  deleteServiceToken(id: string) {
-    return new Promise((resolve, reject) => {
-        this.httpClient.delete(environment.apiUrl + '/service-token/' + id)
-        .subscribe(data => {
-            resolve(data);
-        }, (error: any) => {
-            reject(error);
-        });
-    });
+  deleteServiceToken(id: string): Observable<Object> {
+    return this.httpClient.delete(`${environment.apiUrl}/service-token/${id}`);
   }
 }

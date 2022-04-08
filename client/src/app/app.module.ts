@@ -5,26 +5,27 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './home/home.component';
+import { HomeComponent } from './components/home/home.component';
 
 import { ApiService } from './services/api.service';
 import { HistoryService } from './services/history.service';
 import { AuthService } from './services/auth.service';
 import { UpdateService } from './services/update.service';
 
-import { NavbarComponent } from './navbar/navbar.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { SetupComponent } from './setup/setup.component';
+import { SetupComponent } from './components/setup/setup.component';
 
-import { AuthInterceptor } from './services/auth.interceptor';
-import { ErrorInterceptor } from './services/error.interceptor';
-import { LoginComponent } from './login/login.component';
-import { AccessManagementComponent } from './access-management/access-management.component';
-import { DialogComponent } from './dialog/dialog.component';
-import { SnackbarComponent } from './snackbar/snackbar.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { ErrorInterceptor } from './interceptors/error.interceptor';
+import { LoginComponent } from './components/login/login.component';
+import { AccessManagementComponent } from './components/access-management/access-management.component';
+import { DialogComponent } from './components/dialog/dialog.component';
+import { SnackbarComponent } from './components/snackbar/snackbar.component';
 import { DonePipe } from './pipes/done.pipe';
 import { UndonePipe } from './pipes/undone.pipe';
+import { SettingsComponent } from './components/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -37,14 +38,17 @@ import { UndonePipe } from './pipes/undone.pipe';
     DialogComponent,
     SnackbarComponent,
     DonePipe,
-    UndonePipe
+    UndonePipe,
+    SettingsComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+    }),
   ],
   providers: [
     ApiService,
@@ -54,14 +58,14 @@ import { UndonePipe } from './pipes/undone.pipe';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
-      multi: true
+      multi: true,
     },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorInterceptor,
-      multi: true
+      multi: true,
     },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
