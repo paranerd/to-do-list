@@ -4,3 +4,5 @@ config/vapid.json
 config/config.json
 subscription.txt
 items.json
+.DS_Store
+**/.DS_Store
