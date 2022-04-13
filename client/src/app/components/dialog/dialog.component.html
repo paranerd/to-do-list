@@ -53,17 +53,10 @@
 
       <!-- Modal Footer -->
       <div class="mt-2 flex justify-end pt-2">
-        <button
-          class="px-4 bg-transparent p-3 rounded-lg text-teal-500 hover:bg-teal-500 hover:text-white"
-        >
+        <button class="button button-inverted">
           {{ actionName }}
         </button>
-        <button
-          class="ml-2 px-4 bg-teal-500 p-3 rounded-lg text-white hover:bg-teal-700"
-          (click)="hide()"
-        >
-          Close
-        </button>
+        <button class="button close-button" (click)="hide()">Close</button>
       </div>
 
       <!-- Error -->

@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { AuthService } from '@app/services/auth.service';
 import { NgForm } from '@angular/forms';
@@ -11,6 +12,7 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
+  faSpinner = faSpinner;
   loading: boolean;
   error: string;
   waitForTfa: boolean = false;

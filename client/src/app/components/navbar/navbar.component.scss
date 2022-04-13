@@ -1,0 +1,26 @@
+@import "../../../assets/style/variables";
+
+nav {
+  position: fixed;
+  top: 0;
+  padding: 1.5rem;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  color: #ffffff;
+  background: $accent-color;
+}
+
+.title {
+  font-family: Playball;
+  font-size: 2rem;
+  line-height: 1rem;
+}
+
+.nav-right {
+  position: relative;
+  margin-left: auto;
+}

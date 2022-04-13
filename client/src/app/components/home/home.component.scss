@@ -1,0 +1,61 @@
+@import "../../../assets/style/variables";
+
+.page-wrapper {
+  margin-top: 2rem;
+}
+.actions-button {
+  margin-left: 0.5rem;
+  background: none;
+  color: $text-color;
+  border: 1px solid transparent;
+}
+
+.add-button {
+  flex-shrink: 0;
+}
+
+.add-item-form {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem 0.75rem 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
+  font-style: normal;
+}
+
+.add-item {
+  border: none;
+  width: 100%;
+}
+
+.items {
+  width: 100%;
+}
+
+.item {
+  padding: 0.75rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: $text-color;
+
+  &.item-done {
+    text-decoration: line-through;
+    color: $text-color-light;
+  }
+
+  .item-name {
+    width: 100%;
+    margin-left: 1rem;
+    outline: none;
+  }
+
+  .item-remove {
+    flex-shrink: 0;
+    outline: none;
+    border: none;
+  }
+}

@@ -1,23 +1,4 @@
-.tfa {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  .input-container {
-    width: 200px;
-  }
-
-  input {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-#tfa-confirm {
-  margin-top: 1rem;
-}
-
-label {
-  margin-left: 10px;
+hr {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
 }

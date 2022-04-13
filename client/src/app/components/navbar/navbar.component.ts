@@ -1,5 +1,6 @@
 import { Component, Input, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
+import { faCloud } from '@fortawesome/free-solid-svg-icons';
 
 import { AuthService } from '@app/services/auth.service';
 import { UtilService } from '@app/services/util.service';
@@ -10,6 +11,7 @@ import { UtilService } from '@app/services/util.service';
   styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent {
+  faCloud = faCloud;
   online: boolean = true;
   menuOpen: boolean = false;
 

@@ -1,6 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
+import {
+  faPlus,
+  faEllipsisVertical,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { Item } from '../../models/item.model';
 
@@ -13,6 +18,9 @@ import { HistoryService } from '../../services/history.service';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  faPlus = faPlus;
+  faEllipsisVertical = faEllipsisVertical;
+  faXmark = faXmark;
   value: string = '';
   error: string = '';
   items: Array<Item> = [];
@@ -20,6 +28,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   params: any = {};
   actionsOpen: boolean = false;
   showConfirmModal: boolean = false;
+  confirmAction: any;
+  confirmed: boolean = false;
   modalSuccess: string;
   modalError: string;
 
@@ -69,7 +79,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.items = this.history.rebuild(this.items);
       },
       error: (err) => {
-        console.log('Error fetching items', err);
+        console.error('Error fetching items', err);
       },
     });
   }
@@ -138,10 +148,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /**
    * Delete all checked items.
-   *
-   * @param {boolean} confirmed
    */
-  deleteDone(confirmed: boolean = false): void {
+  deleteDone(): void {
     const doneItems = this.items.filter((item) => item.done);
 
     // Check if there are items to be deleted
@@ -149,8 +157,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!confirmed) {
+    if (!this.confirmed) {
       // Show confirmation dialog
+      this.confirmAction = this.deleteDone;
       this.showConfirmModal = true;
       return;
     }
@@ -162,6 +171,37 @@ export class HomeComponent implements OnInit, OnDestroy {
     doneItems.forEach((item) => {
       this.deleteItem(item);
     });
+
+    // Reset confirmation
+    this.confirmed = false;
+  }
+
+  /**
+   * Delete all items.
+   */
+  deleteAll(): void {
+    // Check if there are items to be deleted
+    if (this.items.length == 0) {
+      return;
+    }
+
+    if (!this.confirmed) {
+      // Show confirmation dialog
+      this.confirmAction = this.deleteAll;
+      this.showConfirmModal = true;
+      return;
+    }
+
+    // Close dropdown
+    this.actionsOpen = false;
+
+    // Delete items
+    this.items.forEach((item) => {
+      this.deleteItem(item);
+    });
+
+    // Reset confirmation
+    this.confirmed = false;
   }
 
   /**
@@ -177,7 +217,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       error: (err) => {
         // Save deletion for later instead
         item = this.history.delete(item);
-        console.log('err', err);
+        console.error('err', err);
       },
       complete: () => {
         // Update items array

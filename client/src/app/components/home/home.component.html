@@ -1,15 +1,13 @@
-<div
-  class="flex flex-col justify-center items-center w-11/12 md:w-8/12 xl:w-6/12 mx-auto mt-4 md:mt-8"
->
+<div class="page-wrapper col-xl-8">
   <!-- Add item -->
   <form
     #create="ngForm"
     (ngSubmit)="createItem(create.value.name); create.reset()"
-    class="w-full flex items-center rounded shadow-md py-2 px-3 border-gray-300 border border-solid"
+    class="add-item-form"
   >
-    <div class="input-container" style="width: 100%">
+    <div class="input-container input-wide">
       <input
-        style="border: none; width: 100%"
+        class="add-item"
         name="name"
         type="text"
         ngModel
@@ -21,48 +19,19 @@
     </div>
 
     <!-- Plus button -->
-    <button
-      class="ml-4 flex-shrink-0 bg-teal-600 hover:bg-teal-700 border-teal-600 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded"
-      type="submit"
-    >
-      <svg
-        class="h-6 w-6"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-        />
-      </svg>
+    <button class="button add-button" type="submit">
+      <fa-icon [icon]="faPlus" size="lg"></fa-icon>
     </button>
 
     <!-- Action menu -->
     <div class="dropdown">
       <!-- Action menu button -->
       <button
-        class="focus:outline-none block ml-4 flex-shrink-0 hover:bg-teal-700 hover:text-white text-sm text-gray-500 py-1 px-1 rounded"
+        class="button actions-button"
         type="button"
         (click)="actionsOpen = !actionsOpen"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-          />
-        </svg>
+        <fa-icon [icon]="faEllipsisVertical" size="lg"></fa-icon>
       </button>
 
       <!-- Action menu dropdown -->
@@ -80,7 +49,10 @@
             class="dropdown-item"
             (click)="actionsOpen = false; deleteDone()"
           >
-            Remove checked
+            Clear done
+          </div>
+          <div class="dropdown-item" (click)="actionsOpen = false; deleteAll()">
+            Clear all
           </div>
         </div>
       </div>
@@ -88,12 +60,9 @@
   </form>
 
   <!-- Items -->
-  <div class="items w-full">
+  <div class="items">
     <!-- Undone items -->
-    <div
-      class="item w-full flex items-center px-2 py-2 mt-6 text-gray-800"
-      *ngFor="let item of items | undone"
-    >
+    <div class="item" *ngFor="let item of items | undone">
       <input
         type="checkbox"
         class="checkbox"
@@ -103,7 +72,7 @@
       />
       <span
         #create
-        class="item-name w-full ml-3 text-base select-text outline-none"
+        class="item-name"
         contenteditable="true"
         (paste)="onPaste(item, $event)"
         (keydown)="onKeydown(item, $event)"
@@ -112,30 +81,15 @@
       >
 
       <button
-        class="item-remove flex-shrink-0 hover:bg-gray-200 rounded-full focus:outline-none p-2 hover:text-black"
+        class="button button-inverted item-remove"
         (click)="deleteItem(item)"
       >
-        <svg
-          class="fill-current w-4 h-4"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
+        <fa-icon [icon]="faXmark"></fa-icon>
       </button>
     </div>
 
     <!-- Done items -->
-    <div
-      class="item w-full flex items-center px-2 py-2 mt-6 text-gray-500 line-through"
-      *ngFor="let item of items | done"
-    >
+    <div class="item item-done" *ngFor="let item of items | done">
       <input
         type="checkbox"
         class="checkbox"
@@ -145,7 +99,7 @@
       />
       <span
         #create
-        class="item-name w-full ml-3 text-base select-text outline-none"
+        class="item-name"
         contenteditable="true"
         (paste)="onPaste(item, $event)"
         (keydown)="onKeydown(item, $event)"
@@ -154,22 +108,10 @@
       >
 
       <button
-        class="item-remove flex-shrink-0 hover:bg-gray-200 rounded-full focus:outline-none p-2 hover:text-black"
+        class="button button-inverted item-remove"
         (click)="deleteItem(item)"
       >
-        <svg
-          class="fill-current w-4 h-4"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
+        <fa-icon [icon]="faPlus" size="lg"></fa-icon>
       </button>
     </div>
   </div>
@@ -178,7 +120,7 @@
     [(show)]="showConfirmModal"
     [actionName]="'OK'"
     [title]="'Delete?'"
-    (action)="deleteDone(true)"
+    (action)="confirmed = true; confirmAction()"
     [autoHide]="true"
   ></app-dialog>
 </div>

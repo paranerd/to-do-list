@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -27,6 +27,9 @@ import { DonePipe } from './pipes/done.pipe';
 import { UndonePipe } from './pipes/undone.pipe';
 import { SettingsComponent } from './components/settings/settings.component';
 
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { SettingsSecurityComponent } from './components/settings-security/settings-security.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,6 +43,7 @@ import { SettingsComponent } from './components/settings/settings.component';
     DonePipe,
     UndonePipe,
     SettingsComponent,
+    SettingsSecurityComponent,
   ],
   imports: [
     BrowserModule,
@@ -49,8 +53,10 @@ import { SettingsComponent } from './components/settings/settings.component';
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
     }),
+    FontAwesomeModule,
   ],
   providers: [
+    Title,
     ApiService,
     HistoryService,
     AuthService,

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { AuthService } from '@app/services/auth.service';
 
@@ -10,6 +11,7 @@ import { AuthService } from '@app/services/auth.service';
   styleUrls: ['./setup.component.scss'],
 })
 export class SetupComponent {
+  faSpinner = faSpinner;
   loading: boolean;
   error: string;
 

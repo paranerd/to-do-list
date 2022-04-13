@@ -1,0 +1,36 @@
+<h2>Security</h2>
+
+<div>
+  <input
+    id="enable-tfa"
+    class="checkbox"
+    type="checkbox"
+    [checked]="settings.tfa"
+    (change)="toggleTfa($event.target.checked)"
+  />
+  <label for="enable-tfa">Enable Two-factor Authentication</label>
+
+  <form
+    *ngIf="tfaCode"
+    #confirmTfaForm="ngForm"
+    class="tfa"
+    (ngSubmit)="confirmTfa(confirmTfaForm)"
+  >
+    <img [src]="tfaCode" alt="" width="20%" />
+    <span>{{ tfaSecret }}</span>
+
+    <div class="input-container">
+      <input
+        class="input-no-arrows"
+        name="code"
+        ngModel
+        type="tel"
+        placeholder="6-digit Code"
+        autocomplete="off"
+      />
+      <span class="focus-border"></span>
+    </div>
+    <button id="tfa-confirm" class="button" type="submit">Confirm</button>
+    <span class="error" *ngIf="error">{{ error }}</span>
+  </form>
+</div>

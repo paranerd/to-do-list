@@ -1,5 +1,6 @@
 import { Component, HostListener } from '@angular/core';
-import { Title } from '@angular/platform-browser';
+
+import { faKey, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
 import { ServiceToken } from '../../models/service-token.model';
 import { ApiService } from '../../services/api.service';
@@ -12,18 +13,14 @@ import { UtilService } from '../../services/util.service';
 })
 export class AccessManagementComponent {
   tokens: Array<ServiceToken> = [];
-
   showModal: boolean = false;
-
   modalTitle: string = 'Create Service Token';
-
   modalActionName: string = 'Create';
-
   modalFields: Array<string> = ['name'];
-
   modalSuccess: string = '';
-
   modalError: string = '';
+  faKey = faKey;
+  faTrashCan = faTrashCan;
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -32,13 +29,7 @@ export class AccessManagementComponent {
     }
   }
 
-  constructor(
-    private titleService: Title,
-    private api: ApiService,
-    private util: UtilService
-  ) {
-    this.titleService.setTitle('Access Management | To-Do List');
-
+  constructor(private api: ApiService, private util: UtilService) {
     // Load service tokens
     this.loadTokens();
   }

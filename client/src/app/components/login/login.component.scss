@@ -1,3 +1,5 @@
+@import "../../../assets/style/variables";
+
 .wrapper {
   width: 100%;
   height: 100%;
@@ -5,6 +7,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-image: linear-gradient(to bottom right, #003333, #007777);
 }
 
 .login-form {
@@ -12,22 +15,47 @@
   margin: 1rem 0 1rem 0;
   background-color: #fff;
   border-radius: 0.25rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
+  font-style: normal;
 
   .title {
     text-align: center;
+    font-family: Playball;
     font-size: 3rem;
+    font-weight: 100;
     line-height: 1;
-    color: rgb(31 41 55);
-    margin-bottom: 10px;
+    color: $text-color;
+  }
+
+  .error {
+    margin-top: 0.5rem;
+    color: $text-color-error;
+    text-align: center;
+  }
+
+  input {
+    width: 100%;
   }
 }
 
 .login-button {
   width: 100%;
+
+  fa-icon {
+    margin-right: 0.5rem;
+    animation: spin 2s linear infinite;
+  }
 }
 
 .login-input {
   width: 100%;
-  /*margin-bottom: 0.75rem;*/
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
