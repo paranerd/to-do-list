@@ -1,7 +1,10 @@
 <div class="wrapper">
-  <app-navbar></app-navbar>
+  <app-navbar *ngIf="!['/login', '/setup'].includes(router.url)"></app-navbar>
 
-  <div class="main">
+  <div
+    class="main"
+    [ngClass]="{ 'with-header': !['/login', '/setup'].includes(router.url) }"
+  >
     <div class="content">
       <router-outlet></router-outlet>
     </div>

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { PushService } from '@app/services/push.service';
 import { UpdateService } from '@app/services/update.service';
@@ -14,7 +15,11 @@ export class AppComponent {
   snackbarActionName: string = 'Apply';
   snackbarMsg: string = 'Update available!';
 
-  constructor(private push: PushService, public update: UpdateService) {
+  constructor(
+    private push: PushService,
+    public update: UpdateService,
+    public router: Router
+  ) {
     push.init();
 
     this.update.available.subscribe((available) => {
