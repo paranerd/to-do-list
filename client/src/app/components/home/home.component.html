@@ -70,7 +70,7 @@
         [checked]="item.done"
         (change)="updateItem(item, { done: status.checked })"
       />
-      <span
+      <!--<span
         #create
         class="item-name"
         contenteditable="true"
@@ -78,7 +78,17 @@
         (keydown)="onKeydown(item, $event)"
         (focusout)="updateItem(item, { name: create.textContent })"
         >{{ item.name }}</span
-      >
+      >-->
+
+      <input
+        #create
+        type="text"
+        class="item-name"
+        (paste)="onPaste(item, $event)"
+        (keydown)="onKeydown(item, $event)"
+        (focusout)="updateItem(item, { name: create.value }, $event)"
+        value="{{ item.name }}"
+      />
 
       <button
         class="button button-inverted item-remove"

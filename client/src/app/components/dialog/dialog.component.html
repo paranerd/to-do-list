@@ -40,14 +40,14 @@
       <!-- Modal Body -->
       <div *ngFor="let field of fields">
         <label class="block text-gray-700 text-sm font-bold mb-1">{{
-          util.capitalize(field)
+          UtilService.capitalize(field)
         }}</label>
         <input
           name="{{ field }}"
           ngModel
           class="mb-4 h-12 appearance-none w-full text-gray-700 leading-tight focus:outline-none text-base border-b border-teal-500 focus:border-teal-700"
           type="text"
-          placeholder="{{ util.capitalize(field) }}"
+          placeholder="{{ UtilService.capitalize(field) }}"
         />
       </div>
 

@@ -1,11 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  CanActivate,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  UrlTree,
-  Router,
-} from '@angular/router';
+import { CanActivate, UrlTree, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '@app/services/auth.service';
 
@@ -15,15 +9,11 @@ import { AuthService } from '@app/services/auth.service';
 export class AuthGuard implements CanActivate {
   constructor(public authService: AuthService, public router: Router) {}
 
-  canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ):
+  canActivate():
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    const role = next.data.role;
     if (this.authService.isLoggedIn) {
       return true;
     }
@@ -32,18 +22,18 @@ export class AuthGuard implements CanActivate {
     return false;
   }
 
-  getCookie(cookieName) {
-    const name = cookieName + '=';
+  static getCookie(cookieName) {
+    const name = `${cookieName}=`;
     const decodedCookie = decodeURIComponent(document.cookie);
     const ca = decodedCookie.split(';');
 
-    for (let i = 0; i < ca.length; i++) {
+    for (let i = 0; i < ca.length; i += 1) {
       let c = ca[i];
-      while (c.charAt(0) == ' ') {
+      while (c.charAt(0) === ' ') {
         c = c.substring(1);
       }
 
-      if (c.indexOf(name) == 0) {
+      if (c.indexOf(name) === 0) {
         return c.substring(name.length, c.length);
       }
     }
@@ -51,10 +41,9 @@ export class AuthGuard implements CanActivate {
     return '';
   }
 
-  cookieExists(cookieName) {
+  static cookieExists(cookieName) {
     return (
-      document.cookie.match(new RegExp('(?:^| )' + cookieName + '=([^;]+)')) !==
-      null
+      document.cookie.match(new RegExp(`(?:^| )${cookieName}=([^;]+)`)) !== null
     );
   }
 }

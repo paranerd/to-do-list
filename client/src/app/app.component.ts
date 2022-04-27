@@ -11,8 +11,11 @@ import { UpdateService } from '@app/services/update.service';
 })
 export class AppComponent {
   title: string = 'To-Do List';
+
   showSnackbar: boolean = false;
+
   snackbarActionName: string = 'Apply';
+
   snackbarMsg: string = 'Update available!';
 
   constructor(

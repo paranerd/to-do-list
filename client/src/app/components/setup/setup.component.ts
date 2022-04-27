@@ -12,7 +12,9 @@ import { AuthService } from '@app/services/auth.service';
 })
 export class SetupComponent {
   faSpinner = faSpinner;
+
   loading: boolean;
+
   error: string;
 
   constructor(
@@ -29,16 +31,16 @@ export class SetupComponent {
       console.log(form);
       this.authService
         .setup(form.value.username, form.value.password1, form.value.password2)
-        .subscribe(
-          (data) => {
+        .subscribe({
+          next: () => {
             this.router.navigate(['/']);
           },
-          (error) => {
-            console.log('Error: ' + error);
-            this.error = error;
+          error: (err) => {
+            console.log(`Error: ${err}`);
+            this.error = err;
             this.loading = false;
-          }
-        );
+          },
+        });
     } else {
       console.log('Invalid form');
     }

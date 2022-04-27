@@ -4,7 +4,6 @@ import { faKey, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
 import { ServiceToken } from '../../models/service-token.model';
 import { ApiService } from '../../services/api.service';
-import { UtilService } from '../../services/util.service';
 
 @Component({
   selector: 'app-access-management',
@@ -13,13 +12,21 @@ import { UtilService } from '../../services/util.service';
 })
 export class AccessManagementComponent {
   tokens: Array<ServiceToken> = [];
+
   showModal: boolean = false;
+
   modalTitle: string = 'Create Service Token';
+
   modalActionName: string = 'Create';
+
   modalFields: Array<string> = ['name'];
+
   modalSuccess: string = '';
+
   modalError: string = '';
+
   faKey = faKey;
+
   faTrashCan = faTrashCan;
 
   @HostListener('document:keydown', ['$event'])
@@ -29,7 +36,7 @@ export class AccessManagementComponent {
     }
   }
 
-  constructor(private api: ApiService, private util: UtilService) {
+  constructor(private api: ApiService) {
     // Load service tokens
     this.loadTokens();
   }

@@ -1,4 +1,6 @@
+import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { SettingsSecurityComponent } from './settings-security.component';
 
@@ -8,9 +10,9 @@ describe('SettingsSecurityComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SettingsSecurityComponent ]
-    })
-    .compileComponents();
+      declarations: [SettingsSecurityComponent],
+      imports: [HttpClientModule, RouterTestingModule],
+    }).compileComponents();
   });
 
   beforeEach(() => {

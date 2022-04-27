@@ -1,12 +1,6 @@
-import {
-  Component,
-  Input,
-  HostListener,
-  Output,
-  EventEmitter,
-} from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
-import { UtilService } from '../../services/util.service';
+import { UtilService } from '@app/services/util.service';
 
 @Component({
   selector: 'app-dialog',
@@ -15,14 +9,23 @@ import { UtilService } from '../../services/util.service';
 })
 export class DialogComponent {
   @Input() title: string = 'Dialog';
+
   @Input() show: boolean = false;
+
   @Input() fields: Array<string> = [];
+
   @Input() error: string = '';
+
   @Input() success: string = '';
+
   @Input() actionName: string = 'Send';
+
   @Input() autoHide: boolean = false;
+
   @Output() showChange = new EventEmitter<boolean>();
+
   @Output() action = new EventEmitter<Object>();
+
   copyTooltipText: string = 'Copy';
 
   constructor(private util: UtilService) {}
@@ -41,7 +44,7 @@ export class DialogComponent {
   }
 
   copyText(val: string) {
-    let selBox = document.createElement('textarea');
+    const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';
     selBox.style.left = '0';
     selBox.style.top = '0';

@@ -57,7 +57,7 @@ export class PushService {
 
       // Register notification click handler
       this.swPush.notificationClicks.subscribe((event) => {
-        this.handleNotificationClick(event);
+        PushService.handleNotificationClick(event);
       });
     } catch (err) {
       console.error('Error subscribing', err);
@@ -69,8 +69,8 @@ export class PushService {
    *
    * @param event
    */
-  private handleNotificationClick(event) {
-    const url = event.notification.data.url;
+  private static handleNotificationClick(event) {
+    const { url } = event.notification.data;
     window.open(url, '_blank');
   }
 
@@ -78,10 +78,10 @@ export class PushService {
    * Get VAPID public key from server
    */
   private getPublicKey(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.httpClient.get(environment.apiUrl + '/subscription/vapid').subscribe(
-        (data: Object) => {
-          resolve(data['pubKey']);
+    return new Promise((resolve) => {
+      this.httpClient.get(`${environment.apiUrl}/subscription/vapid`).subscribe(
+        (data: any) => {
+          resolve(data.pubKey);
         },
         (err: any) => {
           console.error('Error obtaining public key', err);
@@ -98,8 +98,8 @@ export class PushService {
    */
   private subscribe(params: PushSubscriptionJSON) {
     this.httpClient
-      .post(environment.apiUrl + '/subscription', params)
-      .subscribe((data) => {
+      .post(`${environment.apiUrl}/subscription`, params)
+      .subscribe(() => {
         localStorage.setItem('subscribed', 'true');
       });
   }

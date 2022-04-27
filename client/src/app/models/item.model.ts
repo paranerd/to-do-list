@@ -2,11 +2,17 @@ import * as uuid from 'uuid';
 
 export class Item {
   id: string;
+
   name: string;
+
   created: number;
+
   modified: number;
+
   done: boolean;
+
   pos: number;
+
   action?: string;
 
   deserialize(input: any): Item {

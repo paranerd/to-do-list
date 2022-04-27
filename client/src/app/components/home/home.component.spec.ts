@@ -1,4 +1,9 @@
+import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { RouterTestingModule } from '@angular/router/testing';
+import { DonePipe } from '@app/pipes/done.pipe';
+import { UndonePipe } from '@app/pipes/undone.pipe';
 
 import { HomeComponent } from './home.component';
 
@@ -8,7 +13,8 @@ describe('HomeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HomeComponent],
+      declarations: [HomeComponent, UndonePipe, DonePipe],
+      imports: [HttpClientModule, RouterTestingModule, FormsModule],
     }).compileComponents();
   });
 

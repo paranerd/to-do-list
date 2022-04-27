@@ -1,4 +1,4 @@
-import { Component, Input, HostListener } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { faCloud } from '@fortawesome/free-solid-svg-icons';
 
@@ -12,26 +12,24 @@ import { UtilService } from '@app/services/util.service';
 })
 export class NavbarComponent {
   faCloud = faCloud;
+
   online: boolean = true;
+
   menuOpen: boolean = false;
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if (event.code == 'Escape' || event.code == 'Esc') {
+    if (event.code === 'Escape' || event.code === 'Esc') {
       this.menuOpen = false;
     }
   }
 
-  constructor(
-    private router: Router,
-    public auth: AuthService,
-    private util: UtilService
-  ) {
+  constructor(private router: Router, public auth: AuthService) {
     // Set online status
     this.online = navigator.onLine;
 
     // Listen for changes in online status
-    util.connectionStatus().subscribe((online) => {
+    UtilService.connectionStatus().subscribe((online) => {
       this.online = online;
     });
   }

@@ -19,18 +19,31 @@ import { HistoryService } from '../../services/history.service';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   faPlus = faPlus;
+
   faEllipsisVertical = faEllipsisVertical;
+
   faXmark = faXmark;
+
   value: string = '';
+
   error: string = '';
+
   items: Array<Item> = [];
+
   paramSubscription: any;
+
   params: any = {};
+
   actionsOpen: boolean = false;
+
   showConfirmModal: boolean = false;
+
   confirmAction: any;
+
   confirmed: boolean = false;
+
   modalSuccess: string;
+
   modalError: string;
 
   constructor(
@@ -45,21 +58,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Listen for parameter changes
-    this.paramSubscription = this.route.queryParams.subscribe(
-      async (queryParams) => {
-        // Reset error
-        this.error = null;
+    this.paramSubscription = this.route.queryParams.subscribe(async () => {
+      // Reset error
+      this.error = null;
 
-        // Reset items
-        this.items = [];
+      // Reset items
+      this.items = [];
 
-        // Sync history
-        await this.history.sync();
+      // Sync history
+      await this.history.sync();
 
-        // Load items
-        this.loadItems();
-      }
-    );
+      // Load items
+      this.loadItems();
+    });
   }
 
   ngOnDestroy() {
@@ -76,7 +87,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.api.getItems(this.params).subscribe({
       next: (items) => {
         this.items = items;
-        this.items = this.history.rebuild(this.items);
+        this.items = HistoryService.rebuild(this.items);
       },
       error: (err) => {
         console.error('Error fetching items', err);
@@ -98,9 +109,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         // Try creating on the server
         item = createdItem;
       },
-      error: (err) => {
+      error: () => {
         // Save creation for later instead
-        item = this.history.create(item);
+        item = HistoryService.create(item);
       },
       complete: () => {
         // Insert new item at pos
@@ -117,25 +128,30 @@ export class HomeComponent implements OnInit, OnDestroy {
    *
    * @param {Item} item
    * @param {Object} update
+   * @param {FocusEvent} event
    */
-  async updateItem(item: Item, update: Object = {}) {
-    Object.assign(item, update);
+  async updateItem(item: Item, update: Object = {}, event: FocusEvent = null) {
+    // This prevents wrong double update on 'Enter'
+    // which would cause keydown AND focusout to be triggered
+    if (event && (event as any).sourceCapabilities === null) {
+      return;
+    }
+
     item.modified = Date.now();
 
+    const updated = new Item().deserialize({ ...item, ...update });
+
     this.api.updateItem(item).subscribe({
-      next: (updatedItem) => {
-        // Try updating on the server
-        item = updatedItem;
-      },
       error: (err) => {
-        // Save the update for later instead
-        item = this.history.update(item);
+        // Save the update for later
+        HistoryService.update(item);
+        console.error('err', err);
       },
       complete: () => {
         // Update items array
-        for (let i = 0; i < this.items.length; i++) {
+        for (let i = 0; i < this.items.length; i += 1) {
           if (this.items[i].id === item.id) {
-            this.items[i] = item;
+            this.items[i] = updated;
             break;
           }
         }
@@ -153,7 +169,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const doneItems = this.items.filter((item) => item.done);
 
     // Check if there are items to be deleted
-    if (doneItems.length == 0) {
+    if (doneItems.length === 0) {
       return;
     }
 
@@ -181,7 +197,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   deleteAll(): void {
     // Check if there are items to be deleted
-    if (this.items.length == 0) {
+    if (this.items.length === 0) {
       return;
     }
 
@@ -216,12 +232,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.api.deleteItem(item).subscribe({
       error: (err) => {
         // Save deletion for later instead
-        item = this.history.delete(item);
+        HistoryService.delete(item);
         console.error('err', err);
       },
       complete: () => {
         // Update items array
-        for (let i = 0; i < this.items.length; i++) {
+        for (let i = 0; i < this.items.length; i += 1) {
           if (this.items[i].id === item.id) {
             this.items.splice(i, 1);
             break;
@@ -235,7 +251,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Catch paste event.
+   * Handle paste event.
    *
    * @param {Item} item
    * @param {event} event
@@ -247,7 +263,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     let index = item.pos + 1;
 
     // Get caret position
-    const caretPos = this.getCaretPosition(target);
+    const caretPos = HomeComponent.getCaretPosition(target);
 
     // Get text left of caret
     const leftOfCaret = target.innerText.substring(0, caretPos);
@@ -256,20 +272,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     const rightOfCaret = target.innerText.substring(caretPos);
 
     // Get pasted text
-    const clipboardData = event.clipboardData || window['clipboardData'];
+    const clipboardData = event.clipboardData || (window as any).clipboardData;
     const fullText = leftOfCaret + clipboardData.getData('text') + rightOfCaret;
     const lines = fullText.split('\n');
 
-    for (let i = 0; i < lines.length; i++) {
+    const tasks = [];
+
+    for (let i = 0; i < lines.length; i += 1) {
       if (i === 0) {
         // Update current item
-        await this.updateItem(item, { name: lines[i], pos: index - 1 });
+        tasks.push(this.updateItem(item, { name: lines[i], pos: index - 1 }));
       } else {
-        await this.createItem(lines[i], index);
+        tasks.push(this.createItem(lines[i], index));
       }
 
-      index++;
+      index += 1;
     }
+
+    await Promise.all(tasks);
   }
 
   /**
@@ -279,25 +299,25 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @param {KeyboardEvent} event
    */
   async onKeydown(item: Item, event: KeyboardEvent) {
-    if (event.which !== 13) {
+    if (event.code !== 'Enter') {
       return;
     }
 
     event.preventDefault();
 
-    const target = <HTMLElement>event.target;
+    const target = <HTMLInputElement>event.target;
 
     // Get index of current item
     const index = item.pos + 1;
 
     // Get caret position
-    const caretPos = this.getCaretPosition(target);
+    const caretPos = target.selectionStart;
 
     // Determine name of current item
-    const currentName = target.innerText.substring(0, caretPos).trim();
+    const currentName = target.value.substring(0, caretPos).trim();
 
     // Determine name of new item
-    const newName = target.innerText.substring(caretPos);
+    const newName = target.value.substring(caretPos);
 
     // Update current item
     await this.updateItem(item, { name: currentName, pos: index - 1 });
@@ -308,11 +328,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Focus on new item
     setTimeout(() => {
       (<HTMLElement>(
-        document.querySelector(
-          '.item:nth-child(' + (index + 1) + ') [contenteditable]'
-        )
+        document.querySelector(`.item:nth-child(${index + 1}) .item-name`)
       )).focus();
-    }, 10);
+    }, 100);
   }
 
   /**
@@ -320,7 +338,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    * according to their position in the global array
    */
   resetPositions() {
-    for (let i = 0; i < this.items.length; i++) {
+    for (let i = 0; i < this.items.length; i += 1) {
       this.items[i].pos = i;
     }
   }
@@ -331,20 +349,23 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @param {HTMLElement} elem
    * @returns {number}
    */
-  getCaretPosition(elem: HTMLElement) {
+  static getCaretPosition(elem: HTMLElement) {
     if (window.getSelection) {
       const sel = window.getSelection();
 
       if (sel.rangeCount) {
-        let range = sel.getRangeAt(0);
-        if (range.commonAncestorContainer.parentNode == elem) {
+        const range = sel.getRangeAt(0);
+        if (range.commonAncestorContainer.parentNode === elem) {
           return range.endOffset;
         }
       }
-    } else if (document['selection'] && document['selection'].createRange) {
-      const range = document['selection'].createRange();
+    } else if (
+      (document as any).selection &&
+      (document as any).selection.createRange
+    ) {
+      const range = (document as any).selection.createRange();
 
-      if (range.parentElement() == elem) {
+      if (range.parentElement() === elem) {
         const tempEl = document.createElement('span');
         elem.insertBefore(tempEl, elem.firstChild);
 

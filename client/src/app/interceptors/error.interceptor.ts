@@ -31,7 +31,6 @@ export class ErrorInterceptor implements HttpInterceptor {
         ) {
           // Auto logout if 401 response returned from API
           this.authService.logout();
-          //location.reload(true);
           this.router.navigate(['/login']);
         }
 

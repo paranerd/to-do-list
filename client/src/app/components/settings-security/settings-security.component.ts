@@ -10,8 +10,11 @@ import { UserService } from '@app/services/user.service';
 })
 export class SettingsSecurityComponent {
   tfaCode: string;
+
   tfaSecret: string;
+
   error: string;
+
   settings: Settings = new Settings();
 
   constructor(public auth: AuthService, private userService: UserService) {
@@ -36,8 +39,8 @@ export class SettingsSecurityComponent {
     if (enable) {
       this.auth.enableTfa().subscribe({
         next: (res) => {
-          this.tfaCode = res.image;
-          this.tfaSecret = res.secret;
+          this.tfaCode = (res as any).image;
+          this.tfaSecret = (res as any).secret;
         },
         error: (err) => {
           this.error = err;

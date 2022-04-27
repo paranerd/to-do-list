@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
+import { map, Observable } from 'rxjs';
 import { Item } from '../models/item.model';
 import { ServiceToken } from '../models/service-token.model';
 
 import { environment } from '../../environments/environment';
-import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -14,13 +14,11 @@ export class ApiService {
   constructor(private httpClient: HttpClient) {}
 
   public getItems(params: any): Observable<Array<Item>> {
-    return this.httpClient
-      .get(`${environment.apiUrl}/item`, { params: params })
-      .pipe(
-        map((data: Array<Item>) => {
-          return data.map((itemData: any) => new Item().deserialize(itemData));
-        })
-      );
+    return this.httpClient.get(`${environment.apiUrl}/item`, { params }).pipe(
+      map((data: Array<Item>) => {
+        return data.map((itemData: any) => new Item().deserialize(itemData));
+      })
+    );
   }
 
   public createItem(item: Item): Observable<Item> {

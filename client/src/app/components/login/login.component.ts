@@ -13,11 +13,15 @@ import { NgForm } from '@angular/forms';
 })
 export class LoginComponent {
   faSpinner = faSpinner;
+
   loading: boolean;
+
   error: string;
+
   waitForTfa: boolean = false;
 
   @ViewChild('login', { static: true }) loginForm: NgForm;
+
   @ViewChild('tfa', { static: true }) tfaForm: NgForm;
 
   constructor(
@@ -44,7 +48,7 @@ export class LoginComponent {
           this.tfaForm.value.tfa
         )
         .subscribe({
-          next: (data) => {
+          next: () => {
             this.router.navigate(['/']);
           },
           error: (err) => {

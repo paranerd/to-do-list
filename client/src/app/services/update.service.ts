@@ -15,7 +15,7 @@ export class UpdateService {
     const appIsStableAndDelayHasPassed = concat(appIsStable, everyTwelveHours);
 
     // Search for update
-    this.updates.available.subscribe((e) => {
+    this.updates.available.subscribe(() => {
       this.available.next(true);
       this.apply();
     });

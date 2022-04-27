@@ -7,12 +7,14 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 })
 export class SnackbarComponent {
   @Input() show: boolean = false;
-  @Input() msg: string = '';
-  @Input() actionName: string = 'Click';
-  @Output() showChange = new EventEmitter<boolean>();
-  @Output() action = new EventEmitter<boolean>();
 
-  constructor() {}
+  @Input() msg: string = '';
+
+  @Input() actionName: string = 'Click';
+
+  @Output() showChange = new EventEmitter<boolean>();
+
+  @Output() action = new EventEmitter<boolean>();
 
   actionClicked() {
     this.action.emit(true);

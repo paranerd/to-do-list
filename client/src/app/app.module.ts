@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
@@ -13,7 +15,6 @@ import { AuthService } from './services/auth.service';
 import { UpdateService } from './services/update.service';
 
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SetupComponent } from './components/setup/setup.component';
 
@@ -27,7 +28,6 @@ import { DonePipe } from './pipes/done.pipe';
 import { UndonePipe } from './pipes/undone.pipe';
 import { SettingsComponent } from './components/settings/settings.component';
 
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SettingsSecurityComponent } from './components/settings-security/settings-security.component';
 
 @NgModule({
@@ -46,9 +46,9 @@ import { SettingsSecurityComponent } from './components/settings-security/settin
     SettingsSecurityComponent,
   ],
   imports: [
+    HttpClientModule,
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule,
     FormsModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,

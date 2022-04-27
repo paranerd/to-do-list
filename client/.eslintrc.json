@@ -15,11 +15,23 @@
         "createDefaultProgram": true
       },
       "extends": [
+        "plugin:import/recommended",
         "plugin:@angular-eslint/recommended",
         "plugin:@angular-eslint/template/process-inline-templates",
+        "airbnb-base",
+        "airbnb-typescript/base",
+        "prettier",
         "plugin:prettier/recommended"
       ],
       "rules": {
+        "no-console": "off",
+        "import/prefer-default-export": "off",
+        "no-param-reassign": [
+          "error",
+          {
+            "props": false
+          }
+        ],
         "@angular-eslint/directive-selector": [
           "error",
           {
