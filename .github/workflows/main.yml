@@ -46,6 +46,7 @@ jobs:
         run: npm test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
 
   build:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
