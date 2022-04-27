@@ -15,15 +15,17 @@ export class UpdateService {
     const appIsStableAndDelayHasPassed = concat(appIsStable, everyTwelveHours);
 
     // Search for update
-    this.updates.available.subscribe(() => {
-      this.available.next(true);
-      this.apply();
-    });
+    if (this.updates.isEnabled) {
+      this.updates.available.subscribe(() => {
+        this.available.next(true);
+        this.apply();
+      });
 
-    // Search for update periodically
-    appIsStableAndDelayHasPassed.subscribe(() => {
-      updates.checkForUpdate();
-    });
+      // Search for update periodically
+      appIsStableAndDelayHasPassed.subscribe(() => {
+        updates.checkForUpdate();
+      });
+    }
   }
 
   apply() {
