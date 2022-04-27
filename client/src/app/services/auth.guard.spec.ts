@@ -25,6 +25,7 @@ describe('AuthGuard', () => {
   });
 
   it('Should get cookie content', () => {
+    document.cookie = 'debug=worx';
     const cookie = AuthGuard.getCookie('debug');
     expect(cookie).toEqual('worx');
   });
