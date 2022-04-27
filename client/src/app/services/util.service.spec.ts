@@ -21,6 +21,6 @@ describe('UtilService', () => {
 
   it('Should return correct datestring', () => {
     const datestring = UtilService.timestampToDate(1651085740000);
-    expect(datestring).toEqual('2022-04-27 20:55:40');
+    expect(datestring).toMatch(/2022-04-27 \d\d:55:40/);
   });
 });
