@@ -43,7 +43,7 @@ jobs:
 
       - name: Test client
         working-directory: ./client
-        run: npm run test
+        run: npm test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
 
   build:
     runs-on: ubuntu-latest
