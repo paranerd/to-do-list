@@ -1,7 +1,7 @@
 import { Component, HostListener } from '@angular/core';
-
 import { faKey, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
+import { UtilService } from '@app/services/util.service';
 import { ServiceToken } from '../../models/service-token.model';
 import { ApiService } from '../../services/api.service';
 
@@ -11,6 +11,8 @@ import { ApiService } from '../../services/api.service';
   styleUrls: ['./access-management.component.scss'],
 })
 export class AccessManagementComponent {
+  timestampToDate = UtilService.timestampToDate;
+
   tokens: Array<ServiceToken> = [];
 
   showModal: boolean = false;
@@ -45,6 +47,7 @@ export class AccessManagementComponent {
     this.api.createServiceToken(name).subscribe({
       next: (token) => {
         this.modalSuccess = <string>token.token;
+        this.modalError = '';
 
         this.loadTokens();
       },

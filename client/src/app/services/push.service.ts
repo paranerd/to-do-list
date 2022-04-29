@@ -22,6 +22,11 @@ export class PushService {
    * Set up subscriptions
    */
   async init() {
+    // Check if Service Worker is enabled
+    if (!this.swPush.isEnabled) {
+      return;
+    }
+
     // Check if logged in
     if (!this.auth.getCurrentUser()) {
       return;

@@ -12,7 +12,7 @@ export class UtilService {
    * @param {number} ts
    * @returns {string}
    */
-  public static timestampToDate(ts: number) {
+  public static timestampToDate(ts: number): string {
     const date = new Date(ts);
     const year = date.getFullYear();
     const month = `0${date.getMonth() + 1}`.slice(-2);

@@ -14,9 +14,7 @@
     </span>
 
     <!-- Token create date -->
-    <span class="token-created">{{
-      UtilService.timestampToDate(token.created)
-    }}</span>
+    <span class="token-created">{{ timestampToDate(token.created) }}</span>
 
     <!-- Actions -->
     <button class="button icon-only" (click)="deleteToken(token)">

@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { faXmark, faCopy } from '@fortawesome/free-solid-svg-icons';
 
 import { UtilService } from '@app/services/util.service';
 
@@ -8,6 +9,12 @@ import { UtilService } from '@app/services/util.service';
   styleUrls: ['./dialog.component.scss'],
 })
 export class DialogComponent {
+  faXmark = faXmark;
+
+  faCopy = faCopy;
+
+  capitalize = UtilService.capitalize;
+
   @Input() title: string = 'Dialog';
 
   @Input() show: boolean = false;
