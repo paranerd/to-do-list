@@ -78,8 +78,6 @@ async function login(req, res) {
   // Find user
   const user = await User.findOne({ username });
 
-  console.log(user);
-
   // Check for existance and password
   if (!user || !(await user.validatePassword(password))) {
     res.status(401).json({ msg: 'Incorrect user or password' });
