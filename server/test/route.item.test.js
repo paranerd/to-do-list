@@ -40,7 +40,7 @@ afterAll(async () => {
 
 describe('Item routes', () => {
   it('Should return token on successful login', async () => {
-    const res = await request(app).post('/api/user/login').send({
+    const res = await request(app).post('/api/auth/login').send({
       username,
       password,
     });

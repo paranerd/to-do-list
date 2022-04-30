@@ -19,7 +19,6 @@ import { environment } from '../environments/environment';
 import { SetupComponent } from './components/setup/setup.component';
 
 import { AuthInterceptor } from './interceptors/auth.interceptor';
-import { ErrorInterceptor } from './interceptors/error.interceptor';
 import { LoginComponent } from './components/login/login.component';
 import { AccessManagementComponent } from './components/access-management/access-management.component';
 import { DialogComponent } from './components/dialog/dialog.component';
@@ -64,11 +63,6 @@ import { SettingsSecurityComponent } from './components/settings-security/settin
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ErrorInterceptor,
       multi: true,
     },
   ],

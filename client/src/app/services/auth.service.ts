@@ -25,23 +25,25 @@ export class AuthService {
    * @param {string} username
    * @param {string} password1
    * @param {string} password2
-   * @returns {Observable<void>}
+   * @returns {Observable<User>}
    */
   setup(
     username: string,
     password1: string,
     password2: string
-  ): Observable<void> {
+  ): Observable<User> {
     return this.http
-      .post<any>(`${environment.apiUrl}/user/setup`, {
+      .post<any>(`${environment.apiUrl}/auth/setup`, {
         username,
         password1,
         password2,
       })
       .pipe(
-        map((user) => {
+        map((user: User) => {
           localStorage.setItem('user', JSON.stringify(user));
           this.currentUser = user;
+
+          return user;
         })
       );
   }
@@ -52,25 +54,43 @@ export class AuthService {
    * @param {string} username
    * @param {string} password
    * @param {string} tfa
-   * @returns {Observable<void>}
+   * @returns {Observable<User>}
    */
   login(
     username: string,
     password: string,
     tfa: string = null
-  ): Observable<void> {
+  ): Observable<User> {
     return this.http
-      .post<any>(`${environment.apiUrl}/user/login`, {
+      .post<any>(`${environment.apiUrl}/auth/login`, {
         username,
         password,
         tfa,
       })
       .pipe(
-        map((user) => {
+        map((user: User) => {
           localStorage.setItem('user', JSON.stringify(user));
           this.currentUser = user;
+
+          return user;
         })
       );
+  }
+
+  /**
+   * Refresh auth token.
+   *
+   * @returns {Observable<User>}
+   */
+  refresh(): Observable<User> {
+    return this.http.post<any>(`${environment.apiUrl}/auth/refresh`, {}).pipe(
+      map((user: User) => {
+        localStorage.setItem('user', JSON.stringify(user));
+        this.currentUser = user;
+
+        return user;
+      })
+    );
   }
 
   /**

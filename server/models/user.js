@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
     confirmed: { type: Boolean, default: false },
   },
   token: String,
-  refreshToken: String,
+  refreshToken: [String],
   isAdmin: { type: Boolean, default: false },
 });
 

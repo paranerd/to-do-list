@@ -9,7 +9,7 @@ const tokenExpiration = '15m';
 const refreshTokenExpiration = '24h';
 const secretLength = 16;
 const jwtOptions = {
-  issuer: 'resolution',
+  issuer: 'task-me',
   algorithm: 'HS256',
 };
 
@@ -57,6 +57,26 @@ function generateRefreshToken(payload) {
 }
 
 /**
+ * Extract token from request.
+ *
+ * @param {Express.Request} req
+ * @returns {string}
+ */
+function extractToken(req) {
+  let token =
+    req.headers['x-access-token'] ||
+    req.headers.authorization ||
+    req.body.token ||
+    req.query.token ||
+    '';
+
+  // Extract token from auth header
+  token = token.startsWith('Bearer') ? token.split(' ')[1] : token;
+
+  return token;
+}
+
+/**
  * Check if user is authenticated.
  * Used as Express middleware.
  *
@@ -69,16 +89,9 @@ function isAuthenticated(needsAdmin = false) {
     const secret = getSecret();
 
     // Extract token from request
-    let token =
-      req.headers['x-access-token'] ||
-      req.headers.authorization ||
-      req.body.token ||
-      req.query.token;
+    const token = extractToken(req);
 
     if (token) {
-      // Extract token from auth header
-      token = token.startsWith('Bearer') ? token.split(' ')[1] : token;
-
       try {
         // Verify token
         const decoded = jwt.verify(token, secret, jwtOptions);

@@ -9,6 +9,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 
 // Controllers
+const authController = require('../controllers/auth');
 const itemController = require('../controllers/item');
 const serviceTokenController = require('../controllers/serviceToken');
 const subscriptionController = require('../controllers/subscription');
@@ -20,6 +21,31 @@ router.use(cookieParser());
 if (process.env.PRODUCTION) {
   router.use(cors());
 }
+
+// Auth routes
+router.post('/api/auth/setup', authController.setup);
+router.post('/api/auth/login', authController.login);
+router.post('/api/auth/logout', auth.isAuthenticated(), authController.logout);
+router.post(
+  '/api/auth/refresh',
+  auth.isAuthenticated(),
+  authController.refresh
+);
+router.post(
+  '/api/auth/enable-tfa',
+  auth.isAuthenticated(),
+  authController.enableTfa
+);
+router.post(
+  '/api/auth/disable-tfa',
+  auth.isAuthenticated(),
+  authController.disableTfa
+);
+router.post(
+  '/api/auth/confirm-tfa',
+  auth.isAuthenticated(),
+  authController.confirmTfa
+);
 
 // Item routes
 router.get('/api/item', auth.isAuthenticated(), itemController.list);
@@ -63,28 +89,10 @@ router.delete(
 
 // User routes
 router.post('/api/user', auth.isAuthenticated(true), userController.create);
-router.post('/api/user/setup', userController.setup);
 router.get(
   '/api/user/settings',
   auth.isAuthenticated(),
   userController.getSettings
-);
-router.post('/api/user/login', userController.login);
-router.post('/api/user/logout', auth.isAuthenticated(), userController.logout);
-router.post(
-  '/api/user/enable-tfa',
-  auth.isAuthenticated(),
-  userController.enableTfa
-);
-router.post(
-  '/api/user/disable-tfa',
-  auth.isAuthenticated(),
-  userController.disableTfa
-);
-router.post(
-  '/api/user/confirm-tfa',
-  auth.isAuthenticated(),
-  userController.confirmTfa
 );
 
 // Serve static angular build

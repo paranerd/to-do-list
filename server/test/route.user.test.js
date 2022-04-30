@@ -1,8 +1,6 @@
 // Read ENV variables
 require('dotenv').config();
 
-const { authenticator } = require('@otplib/preset-default');
-
 const request = require('supertest');
 const mongoose = require('mongoose');
 const User = require('../models/user');
@@ -15,7 +13,6 @@ require('../util/database').connect();
 const username = 'admin';
 const password = 'password';
 let token;
-let tfaSecret;
 
 beforeAll(async () => {
   // Remove data from user collection
@@ -31,47 +28,11 @@ afterAll(async () => {
 });
 
 describe('User routes', () => {
-  it('Should fail to create the admin user', async () => {
-    const res = await request(app).post('/api/user/setup').send({
-      username,
-      password1: password,
-      password2: '',
-    });
-
-    expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty('msg');
-    expect(res.body.msg).toEqual('Passwords do not match');
-  });
-
   it('Should create the admin user', async () => {
-    const res = await request(app).post('/api/user/setup').send({
+    const res = await request(app).post('/api/auth/setup').send({
       username,
       password1: password,
       password2: password,
-    });
-
-    expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty('username');
-    expect(res.body).toHaveProperty('isAdmin');
-    expect(res.body).toHaveProperty('token');
-    expect(res.body.username).toEqual(username);
-    expect(res.body.isAdmin).toEqual(true);
-  });
-
-  it('Should fail to create the admin user again', async () => {
-    const res = await request(app).post('/api/user/setup').send({
-      username,
-      password1: password,
-      password2: password,
-    });
-
-    expect(res.statusCode).toEqual(401);
-  });
-
-  it('Should return token on successful login', async () => {
-    const res = await request(app).post('/api/user/login').send({
-      username,
-      password,
     });
 
     expect(res.statusCode).toEqual(200);
@@ -80,46 +41,47 @@ describe('User routes', () => {
     token = res.body.token;
   });
 
-  it('Should fail confirming Two-factor Authentication', async () => {
+  it('Should fail creating the same user again', async () => {
     const res = await request(app)
-      .post('/api/user/confirm-tfa')
+      .post('/api/user')
+      .send({
+        username,
+        password1: 'pass',
+        password2: 'pass',
+      })
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.statusCode).toEqual(400);
+    expect(res.body.msg).toContain('User already exists');
   });
 
-  it('Should enable Two-factor Authentication', async () => {
+  it('Should fail creating user with mismatch passwords', async () => {
     const res = await request(app)
-      .post('/api/user/enable-tfa')
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty('secret');
-
-    tfaSecret = res.body.secret;
-  });
-
-  it('Should fail confirming Two-factor Authentication due to wrong code', async () => {
-    const res = await request(app)
-      .post('/api/user/confirm-tfa')
+      .post('/api/user')
       .send({
-        code: '',
+        username,
+        password1: 'pass',
+        password2: '',
       })
       .set('Authorization', `Bearer ${token}`);
 
-    expect(res.statusCode).toEqual(401);
+    expect(res.statusCode).toEqual(400);
+    expect(res.body.msg).toContain('Passwords do not match');
   });
 
-  it('Should confirm Two-factor Authentication', async () => {
-    const tfaToken = authenticator.generate(tfaSecret);
-
+  it('Should create a new user', async () => {
     const res = await request(app)
-      .post('/api/user/confirm-tfa')
+      .post('/api/user')
       .send({
-        code: tfaToken,
+        username: 'test',
+        password1: 'pass',
+        password2: 'pass',
       })
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('username');
+    expect(res.body).toHaveProperty('isAdmin');
+    expect(res.body.isAdmin).toBe(false);
   });
 });
