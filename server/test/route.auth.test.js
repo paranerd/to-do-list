@@ -7,6 +7,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const Item = require('../models/item');
+const auth = require('../middleware/auth');
 const app = require('../app');
 
 // Connect to MongoDB
@@ -15,6 +16,9 @@ require('../util/database').connect();
 const username = 'admin';
 const password = 'password';
 let token;
+let refreshToken;
+let expiredAccessToken;
+let expiredRefreshToken;
 let tfaSecret;
 
 beforeAll(async () => {
@@ -79,6 +83,61 @@ describe('Auth routes', () => {
     expect(res.body).toHaveProperty('token');
 
     token = res.body.token;
+    refreshToken = res.body.refreshToken;
+  });
+
+  it('Should obtain almost expired access token', async () => {
+    expiredAccessToken = auth.generateToken({}, { expiresIn: '1s' });
+
+    expect(expiredAccessToken).not.toBeNull();
+  });
+
+  it('Should obtain almost expired refresh token', async () => {
+    expiredRefreshToken = auth.generateRefreshToken({}, { expiresIn: '1s' });
+
+    expect(expiredRefreshToken).not.toBeNull();
+  });
+
+  it('Should fail with expired access token', async () => {
+    // Wait for 2s for token to expire
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 2000);
+    });
+
+    const res = await request(app)
+      .post('/api/item')
+      .set('Authorization', `Bearer ${expiredAccessToken}`);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body.msg).toContain('TokenExpired');
+  });
+
+  it('Should fail with expired refresh token', async () => {
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Authorization', `Bearer ${expiredRefreshToken}`);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body.msg).toContain('TokenExpired');
+  });
+
+  it('Should fail with wrong token type', async () => {
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body.msg).toContain('Unauthorized');
+  });
+
+  it('Should return refreshed access token', async () => {
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Authorization', `Bearer ${refreshToken}`);
+
+    expect(res.statusCode).toEqual(200);
   });
 
   it('Should fail confirming Two-factor Authentication', async () => {
@@ -87,6 +146,7 @@ describe('Auth routes', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.statusCode).toEqual(400);
+    expect(res.body.msg).toContain('not enabled');
   });
 
   it('Should enable Two-factor Authentication', async () => {
