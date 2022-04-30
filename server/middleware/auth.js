@@ -34,12 +34,14 @@ function getSecret() {
  * Generate JWT from payload.
  *
  * @param {Object} payload
+ * @param {Object} options
  * @returns {string}
  */
-function generateToken(payload) {
+function generateToken(payload, options = {}) {
   return jwt.sign(payload, getSecret(), {
     ...jwtOptions,
     expiresIn: tokenExpiration,
+    ...options,
   });
 }
 
@@ -47,12 +49,14 @@ function generateToken(payload) {
  * Generate JWT refresh token from payload.
  *
  * @param {Object} payload
+ * @param {Object} options
  * @returns {string}
  */
-function generateRefreshToken(payload) {
+function generateRefreshToken(payload, options = {}) {
   return jwt.sign(payload, getSecret(), {
     ...jwtOptions,
     expiresIn: refreshTokenExpiration,
+    ...options,
   });
 }
 
