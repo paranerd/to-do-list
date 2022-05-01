@@ -22,7 +22,7 @@ export class Item {
     this.created = this.created || Date.now();
     this.modified = this.modified || Date.now();
     this.done = this.done || false;
-    this.pos = this.pos !== null ? this.pos : 0;
+    this.pos = this.pos ? this.pos : 0;
 
     return this;
   }
