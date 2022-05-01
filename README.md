@@ -1,3 +1,5 @@
+[![build](https://github.com/paranerd/to-do-list/actions/workflows/main.yml/badge.svg)](https://github.com/paranerd/to-do-list/actions/workflows/main.yml)
+
 # To-Do List
 This is a self-hosted To-Do-List. See also the [Alexa Companion Skill](https://github.com/paranerd/to-do-list-alexa-skill).
 
