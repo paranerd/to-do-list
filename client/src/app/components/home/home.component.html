@@ -70,15 +70,6 @@
         [checked]="item.done"
         (change)="updateItem(item, { done: status.checked })"
       />
-      <!--<span
-        #create
-        class="item-name"
-        contenteditable="true"
-        (paste)="onPaste(item, $event)"
-        (keydown)="onKeydown(item, $event)"
-        (focusout)="updateItem(item, { name: create.textContent })"
-        >{{ item.name }}</span
-      >-->
 
       <input
         #create
@@ -90,6 +81,7 @@
         value="{{ item.name }}"
       />
 
+      <!-- Delete button -->
       <button
         class="button button-inverted item-remove"
         (click)="deleteItem(item)"
@@ -107,21 +99,14 @@
         [checked]="item.done"
         (change)="updateItem(item, { done: status.checked })"
       />
-      <span
-        #create
-        class="item-name"
-        contenteditable="true"
-        (paste)="onPaste(item, $event)"
-        (keydown)="onKeydown(item, $event)"
-        (focusout)="updateItem(item, { name: create.textContent })"
-        >{{ item.name }}</span
-      >
+      <span class="item-name">{{ item.name }}</span>
 
+      <!-- Delete button -->
       <button
         class="button button-inverted item-remove"
         (click)="deleteItem(item)"
       >
-        <fa-icon [icon]="faPlus" size="lg"></fa-icon>
+        <fa-icon [icon]="faXmark"></fa-icon>
       </button>
     </div>
   </div>
