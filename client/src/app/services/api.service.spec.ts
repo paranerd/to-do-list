@@ -19,16 +19,22 @@ describe('ApiService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should be created', () => {
+  it('Should be created', () => {
     expect(service).toBeTruthy();
   });
 
   it('Should return items', () => {
-    const mockItems = [];
+    const mockItems = [
+      {
+        id: '123',
+        name: 'test',
+        done: false,
+      },
+    ];
 
     service.getItems({}).subscribe((items) => {
-      expect(items.length).toBe(0);
-      expect(items).toEqual(mockItems);
+      expect(items.length).toBe(1);
+      expect(items[0].pos).toEqual(0);
     });
 
     const req = httpMock.expectOne(`${environment.apiUrl}/item`);
