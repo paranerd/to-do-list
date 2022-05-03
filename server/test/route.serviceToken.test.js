@@ -101,6 +101,14 @@ describe('Service Token routes', () => {
     expect(res.body).toHaveLength(1);
   });
 
+  it('Should result in a successful request', async () => {
+    const res = await request(app)
+      .get('/api/item')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(200);
+  });
+
   it('Should remove service token', async () => {
     const res = await request(app)
       .delete(`/api/service-token/${st.id}`)
