@@ -39,6 +39,11 @@
   display: flex;
   align-items: center;
   color: $text-color;
+  border-radius: 0.25rem;
+
+  & input {
+    cursor: default;
+  }
 
   &.item-done {
     text-decoration: line-through;
@@ -56,5 +61,9 @@
     flex-shrink: 0;
     outline: none;
     border: none;
+  }
+
+  &:hover {
+    border: 1px solid $accent-color;
   }
 }
