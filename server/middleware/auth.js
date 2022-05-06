@@ -5,8 +5,8 @@ const User = require('../models/user');
 const ConfigHelper = require('../util/configHelper');
 
 const config = new ConfigHelper();
-const tokenExpiration = '15m';
-const refreshTokenExpiration = '24h';
+const tokenExpiration = '24h';
+const refreshTokenExpiration = '30d';
 const secretLength = 16;
 const jwtOptions = {
   issuer: 'task-me',
