@@ -14,8 +14,6 @@
       <label class="input-label" for="username">Username</label>
       <div class="input-container">
         <input
-          #username="ngModel"
-          ngModel
           name="username"
           class="login-input"
           type="text"
@@ -31,8 +29,7 @@
     <div class="input-group">
       <label class="input-label" for="password1">Password</label>
       <input
-        #password1="ngModel"
-        ngModel
+        [(ngModel)]="password1"
         name="password1"
         class="login-input"
         type="password"
@@ -45,8 +42,7 @@
     <div class="input-group">
       <label class="input-label" for="password2">Password (repeat)</label>
       <input
-        #password2="ngModel"
-        ngModel
+        [(ngModel)]="password2"
         name="password2"
         class="login-input"
         type="password"

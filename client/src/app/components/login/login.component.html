@@ -16,8 +16,6 @@
       <div class="input-container">
         <input
           class="login-input"
-          #username="ngModel"
-          ngModel
           name="username"
           type="text"
           placeholder="Username"
@@ -35,8 +33,7 @@
       <div class="input-container">
         <input
           class="login-input"
-          #password="ngModel"
-          ngModel
+          [(ngModel)]="password"
           name="password"
           type="password"
           placeholder="******************"

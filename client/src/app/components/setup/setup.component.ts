@@ -17,6 +17,10 @@ export class SetupComponent {
 
   error: string;
 
+  password1: string;
+
+  password2: string;
+
   constructor(
     public authService: AuthService,
     public router: Router,
@@ -33,12 +37,16 @@ export class SetupComponent {
         .setup(form.value.username, form.value.password1, form.value.password2)
         .subscribe({
           next: () => {
+            this.error = '';
             this.router.navigate(['/']);
           },
           error: (err) => {
-            console.log(`Error: ${err}`);
             this.error = err;
             this.loading = false;
+
+            // Clear passwords
+            this.password1 = '';
+            this.password2 = '';
           },
         });
     } else {

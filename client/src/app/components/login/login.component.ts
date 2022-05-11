@@ -20,6 +20,8 @@ export class LoginComponent {
 
   waitForTfa: boolean = false;
 
+  password: string;
+
   @ViewChild('login', { static: true }) loginForm: NgForm;
 
   @ViewChild('tfa', { static: true }) tfaForm: NgForm;
@@ -49,6 +51,7 @@ export class LoginComponent {
         )
         .subscribe({
           next: () => {
+            this.error = '';
             this.router.navigate(['/']);
           },
           error: (err) => {
@@ -57,6 +60,9 @@ export class LoginComponent {
             } else {
               this.error = err;
             }
+
+            // Clear password
+            this.password = '';
 
             this.loading = false;
           },
