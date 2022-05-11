@@ -81,6 +81,7 @@ async function login(req, res) {
   // Check for existance and password
   if (!user || !(await user.validatePassword(password))) {
     res.status(401).json({ msg: 'Incorrect user or password' });
+    return;
   }
 
   // Check for TFA
