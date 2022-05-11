@@ -32,7 +32,7 @@ export class SetupComponent {
   doSetup(form: any) {
     if (form.status === 'VALID') {
       this.loading = true;
-      console.log(form);
+
       this.authService
         .setup(form.value.username, form.value.password1, form.value.password2)
         .subscribe({

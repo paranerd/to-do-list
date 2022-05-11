@@ -8,13 +8,15 @@
     method="post"
     [style.display]="waitForTfa ? 'none' : 'block'"
   >
-    <h1 class="title">TaskMe!</h1>
+    <h1 class="title">Checklist</h1>
 
     <!-- Username -->
     <div class="input-group">
       <label class="input-label" for="username">Username</label>
       <div class="input-container">
         <input
+          #username="ngModel"
+          ngModel
           class="login-input"
           name="username"
           type="text"

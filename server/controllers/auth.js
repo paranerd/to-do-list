@@ -13,6 +13,13 @@ async function setup(req, res) {
   // Read request body
   const { username, password1, password2 } = req.body;
 
+  // Check for username
+  if (username === '') {
+    res.status(400).json({ msg: 'No username provided' });
+    return;
+  }
+
+  // Check if passwords match
   if (!password1 || password1 !== password2) {
     res.status(400).json({ msg: 'Passwords do not match' });
     return;

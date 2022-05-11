@@ -49,7 +49,19 @@ afterAll(async () => {
 });
 
 describe('Auth routes', () => {
-  it('Should fail to create the admin user', async () => {
+  it('Should fail to create the admin user due to empty username', async () => {
+    const res = await request(app).post('/api/auth/setup').send({
+      username: '',
+      password1: password,
+      password2: password,
+    });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toHaveProperty('msg');
+    expect(res.body.msg).toEqual('No username provided');
+  });
+
+  it('Should fail to create the admin user due to password mismatch', async () => {
     const res = await request(app).post('/api/auth/setup').send({
       username,
       password1: password,
