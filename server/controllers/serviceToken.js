@@ -29,7 +29,7 @@ async function create(req, res) {
 
   const token = await new ServiceToken({
     name,
-    token: auth.generateToken({ isAdmin: false }),
+    token: auth.generateServiceToken({ isAdmin: false }),
   });
 
   await token.save();
