@@ -18,14 +18,6 @@ module.exports = {
         props: false,
       },
     ],
-    'prettier/prettier': [
-      'warn',
-      {
-        singleQuote: true,
-        semi: true,
-        trailingComma: 'es5',
-        tabWidth: 2,
-      },
-    ],
+    'prettier/prettier': 'error',
   },
 };
