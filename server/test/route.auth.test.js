@@ -21,6 +21,20 @@ let expiredAccessToken;
 let expiredRefreshToken;
 let tfaSecret;
 
+/**
+ * Extract payload from JWT.
+ *
+ * @param {string} token
+ * @returns {string}
+ */
+function extractTokenPayload(token64) {
+  // Extract payload
+  const payload64 = token64.split('.')[1];
+  const payload = Buffer.from(payload64, 'base64').toString('utf8');
+
+  return JSON.parse(payload);
+}
+
 beforeAll(async () => {
   // Remove data from user collection
   await User.deleteMany({});
@@ -89,12 +103,18 @@ describe('Auth routes', () => {
   it('Should obtain almost expired access token', async () => {
     expiredAccessToken = auth.generateToken({}, { expiresIn: '1s' });
 
+    const payload = extractTokenPayload(expiredAccessToken);
+
+    expect(payload).toHaveProperty('exp');
     expect(expiredAccessToken).not.toBeNull();
   });
 
   it('Should obtain almost expired refresh token', async () => {
     expiredRefreshToken = auth.generateRefreshToken({}, { expiresIn: '1s' });
 
+    const payload = extractTokenPayload(expiredAccessToken);
+
+    expect(payload).toHaveProperty('exp');
     expect(expiredRefreshToken).not.toBeNull();
   });
 
@@ -112,6 +132,15 @@ describe('Auth routes', () => {
 
     expect(res.statusCode).toEqual(401);
     expect(res.body.msg).toContain('TokenExpired');
+  });
+
+  it('Should obtain service token', async () => {
+    const serviceToken = auth.generateServiceToken({});
+
+    const payload = extractTokenPayload(serviceToken);
+
+    expect(payload).not.toHaveProperty('exp');
+    expect(expiredRefreshToken).not.toBeNull();
   });
 
   it('Should fail with expired refresh token', async () => {

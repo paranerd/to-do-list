@@ -13,7 +13,7 @@ require('../util/database').connect();
 const username = 'admin';
 const password = 'password';
 let token;
-let st;
+let serviceToken;
 
 beforeAll(async () => {
   // Remove data from user collection
@@ -85,11 +85,14 @@ describe('Service Token routes', () => {
 
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('id');
+    expect(res.body).toHaveProperty('token');
+    expect(res.body).not.toHaveProperty('expiresIn');
     expect(res.body).toMatchObject({
       name: 'test',
     });
 
-    st = res.body;
+    serviceToken = res.body;
+    console.log(serviceToken);
   });
 
   it('Should return an array containing 1 service token', async () => {
@@ -104,14 +107,22 @@ describe('Service Token routes', () => {
   it('Should result in a successful request', async () => {
     const res = await request(app)
       .get('/api/item')
-      .set('Authorization', `Bearer ${token}`);
+      .set('Authorization', `Bearer ${serviceToken.token}`);
 
     expect(res.statusCode).toEqual(200);
   });
 
+  it('Should fail removing service token', async () => {
+    const res = await request(app)
+      .delete(`/api/service-token/${serviceToken.id}`)
+      .set('Authorization', `Bearer ${serviceToken.token}`);
+
+    expect(res.statusCode).toEqual(403);
+  });
+
   it('Should remove service token', async () => {
     const res = await request(app)
-      .delete(`/api/service-token/${st.id}`)
+      .delete(`/api/service-token/${serviceToken.id}`)
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.statusCode).toEqual(200);
@@ -124,5 +135,13 @@ describe('Service Token routes', () => {
 
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveLength(0);
+  });
+
+  it('Should fail using revoked service token', async () => {
+    const res = await request(app)
+      .get('/api/item')
+      .set('Authorization', `Bearer ${serviceToken.token}`);
+
+    expect(res.statusCode).toEqual(403);
   });
 });
