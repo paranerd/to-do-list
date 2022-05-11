@@ -9,7 +9,7 @@ const tokenExpiration = '24h';
 const refreshTokenExpiration = '30d';
 const secretLength = 16;
 const jwtOptions = {
-  issuer: 'task-me',
+  issuer: 'to-do-list',
   algorithm: 'HS256',
 };
 
