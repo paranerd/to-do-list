@@ -61,6 +61,21 @@ function generateRefreshToken(payload, options = {}) {
 }
 
 /**
+ * Generate JWT service token from payload.
+ * Attention: This token never expires.
+ *
+ * @param {Object} payload
+ * @param {Object} options
+ * @returns {string}
+ */
+function generateServiceToken(payload, options = {}) {
+  return jwt.sign(payload, getSecret(), {
+    ...jwtOptions,
+    ...options,
+  });
+}
+
+/**
  * Extract token from request.
  *
  * @param {Express.Request} req
@@ -110,7 +125,7 @@ function isAuthenticated(needsAdmin = false) {
         if (!decoded.username) {
           const st = await ServiceToken.find({ token });
 
-          if (!st) {
+          if (st.length === 0) {
             res.sendStatus(403);
             return;
           }
@@ -148,5 +163,6 @@ function isAuthenticated(needsAdmin = false) {
 module.exports = {
   generateToken,
   generateRefreshToken,
+  generateServiceToken,
   isAuthenticated,
 };
