@@ -34,7 +34,11 @@ async function create(req, res) {
 
   await token.save();
 
-  res.json(token);
+  res.json({
+    id: token.id,
+    name: token.name,
+    token: token.token,
+  });
 }
 
 /**
