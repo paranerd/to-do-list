@@ -99,7 +99,7 @@ describe('Auth routes', () => {
     expect(res.statusCode).toEqual(401);
   });
 
-  it('Should return token on successful login', async () => {
+  it('Should return token and refresh token on successful login', async () => {
     const res = await request(app).post('/api/auth/login').send({
       username,
       password,
@@ -107,6 +107,7 @@ describe('Auth routes', () => {
 
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('token');
+    expect(res.body).toHaveProperty('refreshToken');
 
     token = res.body.token;
     refreshToken = res.body.refreshToken;
@@ -179,6 +180,7 @@ describe('Auth routes', () => {
       .set('Authorization', `Bearer ${refreshToken}`);
 
     expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('token');
   });
 
   it('Should fail confirming Two-factor Authentication', async () => {
