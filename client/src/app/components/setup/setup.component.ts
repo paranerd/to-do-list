@@ -50,7 +50,12 @@ export class SetupComponent {
           },
         });
     } else {
-      console.log('Invalid form');
+      if (!form.value.username) {
+        this.error = 'Username must be provided';
+      }
+      if (!form.value.password1 || !form.value.password2) {
+        this.error = 'Passwords must be provided';
+      }
     }
   }
 }

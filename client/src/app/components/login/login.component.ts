@@ -20,7 +20,7 @@ export class LoginComponent {
 
   waitForTfa: boolean = false;
 
-  password: string;
+  password: string = '';
 
   @ViewChild('login', { static: true }) loginForm: NgForm;
 
@@ -67,6 +67,13 @@ export class LoginComponent {
             this.loading = false;
           },
         });
+    } else {
+      if (!this.loginForm.value.username) {
+        this.error = 'Username must be provided';
+      }
+      if (!this.loginForm.value.password) {
+        this.error = 'Password must be provided';
+      }
     }
   }
 }
