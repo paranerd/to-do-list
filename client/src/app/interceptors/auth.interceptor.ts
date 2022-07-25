@@ -36,6 +36,7 @@ export class AuthInterceptor implements HttpInterceptor {
         if (
           err.status === 401 &&
           err.url.startsWith(environment.apiUrl) &&
+          !err.url.endsWith('/login') &&
           !errorText.includes('TFA')
         ) {
           if (!this.refreshing) {
