@@ -183,9 +183,28 @@ async function remove(req, res) {
   }
 }
 
+/**
+ * Endpoint to clear completed items.
+ *
+ * @param {Express.Request} req
+ * @param {Express.Response} res
+ */
+async function clearDone(req, res) {
+  try {
+    await Item.deleteMany({ done: true });
+
+    res.json({});
+  } catch (err) {
+    console.error(err);
+    const status = err.status ? err.status : 500;
+    res.status(status).json({ error: err.message });
+  }
+}
+
 module.exports = {
   list,
   create,
   update,
   remove,
+  clearDone,
 };

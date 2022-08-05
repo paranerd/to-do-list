@@ -52,6 +52,11 @@ router.get('/api/item', auth.isAuthenticated(), itemController.list);
 router.post('/api/item', auth.isAuthenticated(), itemController.create);
 router.patch('/api/item', auth.isAuthenticated(), itemController.update);
 router.delete('/api/item', auth.isAuthenticated(), itemController.remove);
+router.post(
+  '/api/item/clearDone',
+  auth.isAuthenticated(),
+  itemController.clearDone
+);
 
 // Subscription routes
 router.get(

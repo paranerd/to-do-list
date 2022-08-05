@@ -141,10 +141,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const updated = new Item().deserialize({ ...item, ...update });
 
-    this.api.updateItem(item).subscribe({
+    this.api.updateItem(updated).subscribe({
       error: (err) => {
         // Save the update for later
-        HistoryService.update(item);
+        HistoryService.update(updated);
         console.error('err', err);
       },
       complete: () => {
@@ -184,8 +184,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.actionsOpen = false;
 
     // Delete items
-    doneItems.forEach((item) => {
-      this.deleteItem(item);
+    this.api.clearDoneItems().subscribe({
+      next: () => {
+        this.loadItems();
+      },
+      error: (err) => {
+        console.error('error', err);
+      },
     });
 
     // Reset confirmation

@@ -43,6 +43,13 @@ export class ApiService {
     });
   }
 
+  public clearDoneItems(): Observable<Object> {
+    return this.httpClient.request(
+      'post',
+      `${environment.apiUrl}/item/clearDone`
+    );
+  }
+
   createServiceToken(name: string): Observable<ServiceToken> {
     return this.httpClient
       .post(`${environment.apiUrl}/service-token`, { name })
