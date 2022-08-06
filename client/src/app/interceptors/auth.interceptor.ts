@@ -40,6 +40,7 @@ export class AuthInterceptor implements HttpInterceptor {
           !errorText.includes('TFA')
         ) {
           if (!this.refreshing) {
+            console.log('Access token expired. Trying to refresh...');
             // Try to refresh token
             this.refreshing = true;
 
