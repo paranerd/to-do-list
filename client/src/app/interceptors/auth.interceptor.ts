@@ -32,6 +32,7 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((err: HttpErrorResponse) => {
         console.log('Error intercepted', err);
+        console.log('environment.apiUrl', environment.apiUrl);
         const errorText = err.error?.msg || err.statusText;
 
         if (err.status === 401) {
