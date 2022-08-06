@@ -31,6 +31,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(req).pipe(
       catchError((err: HttpErrorResponse) => {
+        console.log('Error intercepted', err);
         const errorText = err.error?.msg || err.statusText;
 
         if (
@@ -63,6 +64,7 @@ export class AuthInterceptor implements HttpInterceptor {
               })
             );
           }
+          console.log('Access token expired but not trying to refresh.');
 
           // Auto logout if 401 response returned from API
           this.refreshing = false;
