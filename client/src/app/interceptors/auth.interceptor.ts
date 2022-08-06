@@ -34,6 +34,22 @@ export class AuthInterceptor implements HttpInterceptor {
         console.log('Error intercepted', err);
         const errorText = err.error?.msg || err.statusText;
 
+        if (err.status === 401) {
+          console.log('Status is 401');
+        }
+
+        if (err.url.startsWith(environment.apiUrl)) {
+          console.log('URL startsWith');
+        }
+
+        if (!err.url.endsWith('/login')) {
+          console.log('URL does not start with /login');
+        }
+
+        if (!errorText.includes('TFA')) {
+          console.log('Error text does not include TFA');
+        }
+
         if (
           err.status === 401 &&
           err.url.startsWith(environment.apiUrl) &&
