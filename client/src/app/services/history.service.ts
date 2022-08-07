@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+import { firstValueFrom } from 'rxjs';
 import { ApiService } from './api.service';
 import { Item } from '../models/item.model';
 
@@ -74,14 +75,13 @@ export class HistoryService {
       ? JSON.parse(localStorage.getItem('history'))
       : [];
 
-    const tasks = [];
-
+    /* eslint-disable no-await-in-loop */
     for (let i = history.length - 1; i >= 0; i -= 1) {
       const item = history[i];
 
       if (item.action === 'create') {
         try {
-          tasks.push(this.api.createItem(item));
+          await firstValueFrom(this.api.createItem(item));
           history.splice(i, 1);
           localStorage.setItem('history', history);
         } catch (err) {
@@ -89,7 +89,7 @@ export class HistoryService {
         }
       } else if (item.action === 'update') {
         try {
-          tasks.push(this.api.updateItem(item));
+          await firstValueFrom(this.api.updateItem(item));
           history.splice(i, 1);
           localStorage.setItem('history', history);
         } catch (err) {
@@ -97,7 +97,7 @@ export class HistoryService {
         }
       } else if (item.action === 'delete') {
         try {
-          tasks.push(this.api.deleteItem(item));
+          await firstValueFrom(this.api.deleteItem(item));
           history.splice(i, 1);
           localStorage.setItem('history', history);
         } catch (err) {
@@ -105,8 +105,6 @@ export class HistoryService {
         }
       }
     }
-
-    await Promise.all(tasks);
   }
 
   static rebuild(items: Array<Item>) {
