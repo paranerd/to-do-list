@@ -81,7 +81,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load items
+   * Load items.
    */
   async loadItems() {
     this.api.getItems(this.params).subscribe({
@@ -104,23 +104,25 @@ export class HomeComponent implements OnInit, OnDestroy {
   async createItem(name: string, pos: number = 0) {
     let item = new Item().deserialize({ name, pos });
 
-    this.api.createItem(item).subscribe({
-      next: (createdItem) => {
-        // Try creating on the server
-        item = createdItem;
-      },
-      error: () => {
-        // Save creation for later instead
-        item = HistoryService.create(item);
-      },
-      complete: () => {
+    this.api
+      .createItem(item)
+      .subscribe({
+        next: (createdItem) => {
+          // Try creating on the server
+          item = createdItem;
+        },
+        error: () => {
+          // Save creation for later instead
+          item = HistoryService.create(item);
+        },
+      })
+      .add(() => {
         // Insert new item at pos
         this.items.splice(pos, 0, item);
 
         // Reset positions
         this.resetPositions();
-      },
-    });
+      });
   }
 
   /**
@@ -141,13 +143,16 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const updated = new Item().deserialize({ ...item, ...update });
 
-    this.api.updateItem(updated).subscribe({
-      error: (err) => {
-        // Save the update for later
-        HistoryService.update(updated);
-        console.error('err', err);
-      },
-      complete: () => {
+    this.api
+      .updateItem(updated)
+      .subscribe({
+        error: (err) => {
+          // Save the update for later
+          HistoryService.update(updated);
+          console.error('err', err);
+        },
+      })
+      .add(() => {
         // Update items array
         for (let i = 0; i < this.items.length; i += 1) {
           if (this.items[i].id === item.id) {
@@ -158,8 +163,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         // Reset positions
         this.resetPositions();
-      },
-    });
+      });
   }
 
   /**
@@ -234,13 +238,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     item.modified = Date.now();
 
     // Try deleting on the server
-    this.api.deleteItem(item).subscribe({
-      error: (err) => {
-        // Save deletion for later instead
-        HistoryService.delete(item);
-        console.error('err', err);
-      },
-      complete: () => {
+    this.api
+      .deleteItem(item)
+      .subscribe({
+        error: (err) => {
+          // Save deletion for later instead
+          HistoryService.delete(item);
+          console.error('err', err);
+        },
+      })
+      .add(() => {
         // Update items array
         for (let i = 0; i < this.items.length; i += 1) {
           if (this.items[i].id === item.id) {
@@ -251,8 +258,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         // Reset positions
         this.resetPositions();
-      },
-    });
+      });
   }
 
   /**
