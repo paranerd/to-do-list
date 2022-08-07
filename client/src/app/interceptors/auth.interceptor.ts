@@ -31,35 +31,15 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(req).pipe(
       catchError((err: HttpErrorResponse) => {
-        console.log('Error intercepted', err);
-        console.log('Request', req);
-        console.log('environment.apiUrl', environment.apiUrl);
         const errorText = err.error?.msg || err.statusText;
-
-        if (err.status === 401) {
-          console.log('Status is 401');
-        }
-
-        if (err.url.startsWith(environment.apiUrl)) {
-          console.log('URL startsWith');
-        }
-
-        if (!err.url.endsWith('/login')) {
-          console.log('URL does not start with /login');
-        }
-
-        if (!errorText.includes('TFA')) {
-          console.log('Error text does not include TFA');
-        }
 
         if (
           err.status === 401 &&
-          err.url.startsWith(environment.apiUrl) &&
-          !err.url.endsWith('/login') &&
+          req.url.startsWith(environment.apiUrl) &&
+          !req.url.endsWith('/login') &&
           !errorText.includes('TFA')
         ) {
           if (!this.refreshing) {
-            console.log('Access token expired. Trying to refresh...');
             // Try to refresh token
             this.refreshing = true;
 
@@ -82,7 +62,6 @@ export class AuthInterceptor implements HttpInterceptor {
               })
             );
           }
-          console.log('Access token expired but not trying to refresh.');
 
           // Auto logout if 401 response returned from API
           this.refreshing = false;
